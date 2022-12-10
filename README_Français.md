@@ -1,0 +1,14 @@
+# Analyse Fondamentale
+
+## A quoi sert cette application ?
+
+Cette application s'adresse à toute personne souhaitant avoir une vue d'ensemble avant d'investir dans une entreprise. Elle crée un Power-Point avec la description de l'entreprise, plusieurs tableaux de données avec les indicateurs comptables les plus importants sur 5 ans ainsi que les prévisions des analystes pour les prochaines années. Après ces tableaux viennent des visualisations techniques vous permettant d'avoir un aperçu de l'évolution du cours, des différentes tendances, des prédictions par l'intelligence artificielle, une analyse des sentiments du marché autour de l'entreprise qui vous intéresse, la façon dont se répartissent les investisseurs... Et Suite. Malheureusement, j'ai remarqué que tous les bons outils d'analyse en ligne n'étaient généralement ni gratuits ni exhaustifs, j'ai donc construit cette application pour m'aider à choisir mes investissements boursiers, et je serais plus qu'honoré d'aider d'autres investisseurs comme moi.
+
+## Comment fonctionne-t-elle ?
+
+Après avoir téléchargé et décompressé le fichier zip, vous vous retrouverez avec un dossier contenant de nombreux fichiers. Surtout, vous ne devez en supprimer aucun. Trouvez le fichier exécutable "Analyse fondamentale" qui a une petite icône, créez un raccourci de ce fichier que vous pouvez mettre où vous voulez, mais ne déplacez pas l'exécutable d'origine. Lancez l'exécutable (ou le raccourci) ; un terminal de commande et une interface graphique apparaîtront. Choisissez la langue (anglais ou français) dans laquelle vous souhaitez recevoir les informations, le ticker de la société qui vous intéresse (si vous avez un doute sur le ticker ou la bourse d'origine, tapez sur google 'Nom_de_la_société ticker yahoo finance' et vous devriez le trouver facilement) , à ce stade, vous devez taper le nom exact de l'entreprise qui vous intéresse, puis copier le chemin du dossier où vous souhaitez stocker le power point (avec windows; maintenez la flèche majuscule enfoncée et faites un clic droit sur le dossier qui vous intéresse, puis cliquez sur 'copier comme chemin'). La dernière étape consiste à cliquer sur le bouton 'Analyse / analyse'.
+
+## Que faire en cas de problème ?
+
+Si vous rencontrez des problèmes dans votre utilisation, ayant réuni toutes les conditions de réussite, n'hésitez pas à m'envoyer un mail à l'adresse suivante 'lucasfernandez2308@gmail.com' et je me ferai un plaisir de rectifier le problème. et redéployer l'application réparée. N'hésitez pas à m'envoyer un mail avec des suggestions d'améliorations/choses que vous souhaiteriez que j'ajoute, j'y répondrai avec plaisir. De plus, vous devez tenir compte du fait que cette application nécessite 3,20 gigas pour être installée. Merci d'avoir lu ce document jusqu'au bout et je vous souhaite de réussir vos investissements.
+
