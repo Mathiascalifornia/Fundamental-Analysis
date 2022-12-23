@@ -34,7 +34,7 @@ def run(language , ticker , path , companie_name):
     
     # Machine learning
     from keras.models import Sequential
-    from keras.layers import Dense , BatchNormalization
+    from keras.layers import Dense , BatchNormalization , LSTM
     from sklearn.preprocessing import MinMaxScaler
     from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
     import tensorflow as tf
@@ -62,10 +62,8 @@ def run(language , ticker , path , companie_name):
         ''' Get url using selenium. '''
 
         driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))#service=s
-        #driver.get(f'https://www.google.com/search?q=zone+bourse+{companie_name}+{ticker}+finance&oq=zone+bourse+{ticker}+financz&aqs=chrome..69i57.7371j0j15&sourceid=chrome&ie=UTF-8')
         driver.get(f'https://www.google.com/search?q=zone+bourse+{companie_name}+finance&sxsrf=ALiCzsbIaWNWrnXJ5acLqlPx2kINT72YMA%3A1670610120483&ei=yHyTY9CSHcmPkdUP3veM2AI&oq=zone+bourse+telenor++finance&gs_lcp=Cgxnd3Mtd2l6LXNlcnAQAxgAMgQIIxAnOggIABCiBBCwA0oECEEYAUoECEYYAFCMBViMBWCHEGgBcAB4AIABKYgBKZIBATGYAQCgAQHIAQPAAQE&sclient=gws-wiz-serp')
-        time.sleep(15) # Time to do the capcha if needed
-        #driver.find_element(By.XPATH , ('//*[@id="L2AGLb"]')).click()
+        time.sleep(12) # Time to do the capcha if needed
         try:
             driver.find_element(By.XPATH , ('//*[@id="L2AGLb"]')).click()
         except:
@@ -892,26 +890,16 @@ def run(language , ticker , path , companie_name):
             target = target[0 : -1]
 
 
-            # Loss function
-            def penalty_loss(y_true , y_pred):
-
-                    penalty = 150.
-                    loss = tf.where(tf.less(y_pred - y_true , 0), # If ...
-                                            penalty * tf.square(y_true - y_pred), # Then ...
-                                            tf.square(y_true - y_pred)) # Else ...
-                            
-                    return tf.reduce_mean(loss , axis=-1)
-
-            # Add the custom loss to keras
-            keras.losses.penalty_loss = penalty_loss
-
-
             # Model building
             model = Sequential()
-            model.add(Dense(500 , input_shape=(7,) , activation='relu'))
+            model.add(LSTM(units=50 , return_sequences=True , input_shape=(s_train[0].shape[1] , 1)))
+            model.add(BatchNormalization())
+            model.add(LSTM(units=50 , return_sequences=False))
             model.add(BatchNormalization())
             model.add(Dense(500 , activation='relu'))
             model.add(BatchNormalization())
+            model.add(Dense(500 , activation='relu'))
+            model.add(BatchNormalization())     
             model.add(Dense(250 , activation='relu'))
             model.add(BatchNormalization())
             model.add(Dense(125 , activation='relu'))
@@ -919,9 +907,9 @@ def run(language , ticker , path , companie_name):
             model.add(Dense(75 , activation='relu'))
             model.add(BatchNormalization())
             model.add(Dense(1 , activation='linear'))
-            model.compile(optimizer='adam' , loss=penalty_loss)
-
-
+            model.compile(optimizer='adam' , loss='mse')
+            
+  
             # Training loop
             for i in range(len(target)):
                 model.fit(s_train[i] , target[i] , epochs=35)
@@ -929,9 +917,23 @@ def run(language , ticker , path , companie_name):
 
             # Prediction
             preds = model.predict(x_future)
-            replacement_val = df[dt.datetime.today() - dt.timedelta(1260):]['close_t'].mean()
-            preds = [float(replacement_val / 2) if val <= (replacement_val / 2.5) else float(val) for val in preds]
-            preds = [float(replacement_val * 1.5) if val > (replacement_val*2) else float(val) for val in preds]
+            preds = np.array([pred for pred_list in preds for pred in pred_list])
+            
+            # Regulize the results
+            last_training = df_['Adj Close'][-1]
+            if  preds[0] < last_training:
+                    diff_ = last_training - preds[0]
+                    perc = diff_ / last_training
+                    if perc >= 0.1:
+                        preds += diff_
+            for i in range(len(preds)):
+                if preds[i] >= float(last_training + (last_training * 0.75)):
+                    preds[i] -= (preds[i] * 0.10)
+                elif preds[i] <= float(last_training + (last_training * 0.50)):
+                    preds[i] += (preds[i] * 0.20)
+
+
+            # Prepare the dataframe to plot
             new_index = pd.date_range(start=df.index[-1] , periods=len(preds) , freq='B')
             to_plot_df = df['close_t']
             preds_df = pd.DataFrame(index=new_index , data=preds)
