@@ -1,5 +1,3 @@
-# /!\ Since december 16 , there is a problem with the yahoo API. So the app will only partially work.
-
 # Fundamental Analysis
 
 ## What is this app for ?
