@@ -1,12 +1,11 @@
 import os 
+import datetime as dt
+import warnings
 
 from googletrans import Translator
 import dataframe_image as dsi
 import textwrap
-import pandas as pd 
 import numpy as np 
-import datetime as dt
-import warnings
 
 from scraping import ScrapingSelenium
 from data_viz import DataViz

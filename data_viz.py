@@ -2,7 +2,6 @@
 import pandas as pd 
 import numpy as np
 import re 
-from googletrans import Translator
 import datetime as dt
 from statsmodels.tsa.seasonal import seasonal_decompose
 from sklearn.preprocessing import MinMaxScaler

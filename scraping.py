@@ -1,30 +1,15 @@
 
+import re 
+import time
+
 # Data manipulation
 import pandas as pd 
 import numpy as np
-import re 
-import textwrap
-from googletrans import Translator
-import datetime as dt
-from statsmodels.tsa.seasonal import seasonal_decompose
-from sklearn.preprocessing import MinMaxScaler
+
+# NLP
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
-import talib as ta
-
-
-# Data visualisation
-from matplotlib.dates import MonthLocator, DateFormatter
-import matplotlib.pyplot as plt
-import mplfinance as mpf
-import seaborn as sns 
-from pptx import Presentation
-from pptx.util import Inches 
-import dataframe_image as dsi
-
-
 
 # Api , scraping
-import requests
 from bs4 import BeautifulSoup
 import lxml
 from selenium import webdriver
@@ -33,11 +18,9 @@ from selenium.webdriver.common.by import By
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
-from selenium.common.exceptions import TimeoutException , UnexpectedAlertPresentException , NoAlertPresentException
+from selenium.common.exceptions import TimeoutException , NoAlertPresentException
 import yfinance as yf
-import pandas_datareader as web
-from pandas_datareader import data
-from pandas_datareader import DataReader
+
 import time
 yf.pdr_override()
 

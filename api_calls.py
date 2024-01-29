@@ -1,18 +1,6 @@
 import pandas as pd 
-import requests
-from bs4 import BeautifulSoup
-import lxml
-from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.common.by import By 
-from webdriver_manager.chrome import ChromeDriverManager
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.common.exceptions import TimeoutException , UnexpectedAlertPresentException , NoAlertPresentException
 import yfinance as yf
-import pandas_datareader as web
 from pandas_datareader import data
-from pandas_datareader import DataReader
 yf.pdr_override()
 
 

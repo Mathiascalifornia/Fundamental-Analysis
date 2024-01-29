@@ -1,47 +1,12 @@
-# Data manipulation
+import datetime as dt 
+
 import pandas as pd 
 import numpy as np
-import re 
-import textwrap
-from googletrans import Translator
-import datetime as dt
-from statsmodels.tsa.seasonal import seasonal_decompose
-from sklearn.preprocessing import MinMaxScaler
-from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
-import talib as ta
 
-
-# Data visualisation
-from matplotlib.dates import MonthLocator, DateFormatter
-import matplotlib.pyplot as plt
-import mplfinance as mpf
-import seaborn as sns 
-from pptx import Presentation
-from pptx.util import Inches 
-import dataframe_image as dsi
-
-
-
-# Api , scraping
-import requests
-from bs4 import BeautifulSoup
-import lxml
-from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.common.by import By 
-from webdriver_manager.chrome import ChromeDriverManager
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.common.exceptions import TimeoutException , UnexpectedAlertPresentException , NoAlertPresentException
-import yfinance as yf
-import pandas_datareader as web
-from pandas_datareader import data
-from pandas_datareader import DataReader
-yf.pdr_override()
 
 
 class FinanceComputationner:
-
+    
     def annualized_return(self , df : pd.DataFrame):
         '''Get the mean annualized return'''
         df_ = df.copy()
