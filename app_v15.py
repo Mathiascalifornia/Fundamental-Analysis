@@ -15,7 +15,8 @@ from api_calls import ApiCaller
 
 warnings.filterwarnings("ignore")
 
-
+### Next dev ###
+# - Compute warning signs 
 
 class App:
 

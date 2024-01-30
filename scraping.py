@@ -111,10 +111,10 @@ class ScrapingSelenium:
         assert len(tables) == 8 , f'Bad number of tables : {len(tables)}'
 
 
-        table_0 = pd.read_html(str(tables[0]))[1].apply(lambda x : x.replace('-' , None))
-        table_1 = pd.read_html(str(tables[1]))[1].apply(lambda x : x.replace('-' , None))
-        table_2 = pd.read_html(str(tables[2]))[1].apply(lambda x : x.replace('-' , None))
-        table_3 = pd.read_html(str(tables[3]))[1].apply(lambda x : x.replace('-' , None))
+        table_0 = pd.read_html(str(tables[0]).replace("," , "."))[1].apply(lambda x : x.replace('-' , None))
+        table_1 = pd.read_html(str(tables[1]).replace("," , "."))[1].apply(lambda x : x.replace('-' , None))
+        table_2 = pd.read_html(str(tables[2]).replace("," , "."))[1].apply(lambda x : x.replace('-' , None))
+        table_3 = pd.read_html(str(tables[3]).replace("," , "."))[1].apply(lambda x : x.replace('-' , None))
 
         table_0 = clean_and_set_index(table_0).fillna(np.nan).map(lambda x : float(clean_table_apply(x)) if clean_table_apply(x) else np.nan)
         table_1 = clean_and_set_index(table_1).fillna(np.nan).map(lambda x : float(clean_table_apply(x)) if clean_table_apply(x) else np.nan)

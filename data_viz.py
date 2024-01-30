@@ -190,7 +190,7 @@ class DataViz(PresPPT):
         bna_years = dict(df2[years].loc['BNA'])
         d_ = d_[d_['year'].isin(years)].drop('year' , axis=1 , errors='ignore')
         d_['BNA'] = list(bna_years.values())
-        d_['payout'] = d_['Dividends'] / d_['BNA'] * 100
+        d_['payout'] = d_['Dividends'] / d_['BNA'] # * 100
 
         with sns.plotting_context('talk'):
             sns.set_style('darkgrid')
