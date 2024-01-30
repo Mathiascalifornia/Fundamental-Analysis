@@ -24,6 +24,8 @@ import yfinance as yf
 import time
 yf.pdr_override()
 
+# Get rid of the scientific notation
+pd.set_option('display.float_format', lambda x: '%.2f' % x)
 
 class ScrapingSelenium:
 
