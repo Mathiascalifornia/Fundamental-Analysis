@@ -279,7 +279,7 @@ class DataViz(PresPPT):
         data_ = yf.Ticker(str(self.ticker).upper())
 
         d_f = data_.major_holders.iloc[:-2]
-        particuliers = 1 - d_f.sum()
+        particuliers = 1 - d_f.sum().values[0]
         
         color = ['red' , 'lightgreen' , 'gold']
         explode = [0.12 , 0.02 , 0.05]
@@ -290,13 +290,13 @@ class DataViz(PresPPT):
         explode = [0.12 , 0.02 , 0.05]
 
         if not self.english:
-            labels = [f'Initiés : {values_to_plot[0]}%' , f'Institutions:{values_to_plot[1]} %' , f'Autre : {np.round(particuliers , 3)}%']
+            labels = [f'Initiés : {round(values_to_plot[0] , 3)}%' , f'Institutions:{round(values_to_plot[1] , 3)} %' , f'Autre : {round(particuliers , 3)}%']
         else:
-            labels = [f'Initiates : {values_to_plot[0]}%' , f'Institutions:{values_to_plot[1]} %' , f'Other : {np.round(particuliers , 3)}%']
+            labels = [f'Initiates : {round(values_to_plot[0] , 3)}%' , f'Institutions:{round(values_to_plot[1] , 3)} %' , f'Other : {round(particuliers , 3)}%']
 
 
         plt.figure(figsize=(5,5))
-        plt.pie([values_to_plot[0] , values_to_plot[1] , particuliers.values[0]] , colors=color , explode=explode)
+        plt.pie([values_to_plot[0] , values_to_plot[1] , particuliers] , colors=color , explode=explode)
         plt.legend(labels)
         plt.savefig('data\\shareholders.png')
         plt.close('all')
