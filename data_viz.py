@@ -563,3 +563,35 @@ class DataViz(PresPPT):
                     else:
                         self.add_picture('data\\price_with_dividends.png' , 'Statistiques de pourcentage de changement du dividende par année')
 
+
+    def pct_change_dividends_summary_five_year(self):
+            '''Compute summary statistics of change in the dividends by year'''
+
+            df_div_ = self.df_dividend.copy()
+            try:
+                df_div_ = df_div_[(df_div_.index[-1] - dt.timedelta(days=365 * 5)):]
+            except OverflowError:
+                return None
+            
+            df_div_['year'] = df_div_.index.year
+            df_div_ = df_div_[df_div_['year'] != dt.datetime.now().year]
+            grp = df_div_.groupby('year' , as_index=False)['Dividends'].sum()
+            grp['pct_changes'] = round(grp['Dividends'].pct_change() * 100 , 3)
+            grp = grp.dropna()
+
+            with sns.plotting_context('talk'):
+                mean_ = round(grp['pct_changes'].mean() , 3)
+                median_ = round(grp['pct_changes'].median() , 3)
+                min_ = round(grp['pct_changes'].min() , 3)
+                max_ = round(grp['pct_changes'].max() , 3)
+
+                plt.figure(figsize=(8,5))
+                sns.scatterplot(x=['Max' , 'Mean' , 'Median' , 'Min'] , y=[max_ , mean_ , median_ , min_] , s=200 , edgecolor='black')
+                plt.title(f'Max: {round(max_,2)}% | Mean: {round(mean_,2)}% | Median: {round(median_,2)}% | Min: {round(min_,2)}%')
+
+                plt.savefig('data\\price_with_dividends.png')
+                plt.close('all')
+                if self.english:
+                    self.add_picture('data\\price_with_dividends.png' , 'Dividend percentage changes statistics by year , for the last five years') 
+                else:
+                    self.add_picture('data\\price_with_dividends.png' , 'Statistiques de pourcentage de changement du dividende par année , pour les 5 dernières années')

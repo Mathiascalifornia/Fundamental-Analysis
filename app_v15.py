@@ -161,8 +161,9 @@ class App:
 
         if self.worked_dividends:
             self.data_viz.price_with_dividends(self.df_price[['Adj Close']] , self.df_dividend.drop('year' , axis=1 , errors='ignore'))
-            self.data_viz.annual_dividend_history()
+            self.data_viz.annual_dividend_history() 
             self.data_viz.pct_change_dividends_summary()
+            self.data_viz.pct_change_dividends_summary_five_year()
 
 
     def save_presentation(self):
