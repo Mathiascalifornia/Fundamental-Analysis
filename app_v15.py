@@ -7,16 +7,18 @@ import dataframe_image as dsi
 import textwrap
 import numpy as np 
 
-from scraping import ScrapingSelenium
-from data_viz import DataViz
-from tkinter_windows import MainWindows
-from finance_computation import FinanceComputationner
-from api_calls import ApiCaller
+from utils.scraping import ScrapingSelenium
+from utils.data_viz import DataViz
+from utils.tkinter_windows import MainWindows
+from utils.finance_computation import FinanceComputationner
+from utils.api_calls import ApiCaller
 
 warnings.filterwarnings("ignore")
 
 ### Next dev ###
 # - Compute warning signs 
+# - Plot the volume time series
+# - Plot the dividend reinjected company versus SP500
 
 class App:
 
@@ -40,7 +42,7 @@ class App:
         self.data_viz = DataViz(**self.get_attributs()) # Give the same attributes to DataViz 
         self.scraping = ScrapingSelenium(company_name=self.company_name , ticker=self.ticker)
         self.finance_comp = FinanceComputationner()
-        self.api_caller = ApiCaller(ticker=self.ticker)
+        self.api_caller = ApiCaller()
         
 
     def get_attributs(self):

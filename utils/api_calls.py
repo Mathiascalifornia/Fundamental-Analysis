@@ -5,8 +5,6 @@ yf.pdr_override()
 
 
 class ApiCaller:
-    def __init__(self , ticker):
-        self.ticker = ticker 
 
     @staticmethod
     def get_price(ticker:str) -> pd.DataFrame:

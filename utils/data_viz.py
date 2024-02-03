@@ -21,7 +21,7 @@ from pandas_datareader import data
 from pandas_datareader import DataReader
 yf.pdr_override()
 
-from pres import PresPPT
+from .pres import PresPPT
 
 
 
