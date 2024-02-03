@@ -239,18 +239,25 @@ class App:
 
         # API calls for stock price and dividends
         try:
+
             # Get the stock prices
-            self.df_price , self.sp500_price = self.api_caller.get_price()
+            self.df_price = self.api_caller.get_price(ticker=self.ticker)
+
+            sp500_price = self.api_caller.get_price(ticker="^GSPC") 
+            self.sp500_price = sp500_price[sp500_price.index >= min(self.df_price.index)]
+            
             self.data_viz.df_price = self.df_price 
             self.data_viz.sp500_price = self.sp500_price
+
             self.worked_stock_price = True 
+
         except Exception as e:
             print("Problem with the stock price request to yahoo API : " , e)
 
 
         try:
             # Get the dividends
-            self.df_dividend = self.api_caller.get_dividend()
+            self.df_dividend = self.api_caller.get_dividend(ticker=self.ticker)
             self.data_viz.df_dividend = self.df_dividend
             if len(self.df_dividend) > 0:
                 self.worked_dividends = True
@@ -313,7 +320,7 @@ class App:
 
 
         try:
-            self.main_institutions = self.api_caller.get_main_institutions()
+            self.main_institutions = self.api_caller.get_main_institutions(ticker=self.ticker)
             self.main_institutions_bool = True
 
         except Exception as e:

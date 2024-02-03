@@ -8,23 +8,27 @@ class ApiCaller:
     def __init__(self , ticker):
         self.ticker = ticker 
 
-    def get_price(self) -> tuple[pd.DataFrame , pd.DataFrame]:
-        '''Get the stock price , volume , open , close , high , low ... Using Datareader (data from yahoo finance)'''
-        df_price = data.get_data_yahoo(self.ticker , start='1975-01-01')
-        sp500_price = data.get_data_yahoo("^GSPC" , start='1975-01-01')
-        sp500_price = sp500_price[sp500_price.index >= min(df_price.index)]
+    @staticmethod
+    def get_price(ticker:str) -> pd.DataFrame:
+        """
+        Get the stock price and other indicators using yahoo finance
+        """
+        return data.get_data_yahoo(ticker , start='1975-01-01')
 
-        return df_price , sp500_price
-
-
-    def get_dividend(self) -> pd.DataFrame:
-        '''Get the dividend history'''
-        to_ret = pd.DataFrame(yf.Ticker(self.ticker).dividends)
+    @staticmethod
+    def get_dividend(ticker:str) -> pd.DataFrame:
+        """
+        Get the dividend history
+        """
+        to_ret = pd.DataFrame(yf.Ticker(ticker).dividends)
         to_ret.index = pd.to_datetime([val.date() for val in list(to_ret.index)])
         return to_ret
 
-    def get_main_institutions(self) -> list:
-        '''Returns the three biggest institutional holders'''
-        data_ = yf.Ticker(str(self.ticker).upper())
+    @staticmethod
+    def get_main_institutions(ticker:str) -> list:
+        """
+        Returns the three biggest institutional holders
+        """
+        data_ = yf.Ticker(str(ticker).upper())
         main_inst = data_.institutional_holders
         return list(main_inst['Holder'][0 : 3])
