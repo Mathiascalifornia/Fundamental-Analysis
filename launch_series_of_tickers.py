@@ -22,7 +22,7 @@ for ticker in tqdm.tqdm(config):
 
     dict_ticker:dict = config[ticker]
 
-    if not os.path.join(os.path.exists(dict_ticker["path_to_save"]) , ticker):
+    if not os.path.exists(os.path.join(dict_ticker["path_to_save"]) , ticker):
 
         App(ticker=ticker , company_name=dict_ticker["company_name"] ,
             language=dict_ticker.get("language" , "Français") ,
