@@ -39,13 +39,13 @@ class App:
         self.sentiment_score = False
         self.main_institutions_bool = False
 
-        self.data_viz = DataViz(**self.get_attributs()) # Give the same attributes to DataViz 
+        self.data_viz = DataViz(**self._get_attributs()) # Give the same attributes to DataViz 
         self.scraping = ScrapingSelenium(company_name=self.company_name , ticker=self.ticker)
         self.finance_comp = FinanceComputationner()
         self.api_caller = ApiCaller()
         
 
-    def get_attributs(self):
+    def _get_attributs(self):
         """ 
         Get all the instance attributes (will be used for the DataViz class)
         """
