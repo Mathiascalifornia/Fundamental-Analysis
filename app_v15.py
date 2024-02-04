@@ -12,10 +12,12 @@ from utils.data_viz import DataViz
 from utils.tkinter_windows import MainWindows
 from utils.finance_computation import FinanceComputationner
 from utils.api_calls import ApiCaller
+from utils.dividend_score_calculator import DividendScoreCalculator
 
 warnings.filterwarnings("ignore")
 
 ### Next dev ###
+# - Plot the dividend scores , with a time serie of the yield plotted on the back
 # - Compute warning signs 
 # - Plot the volume time series
 # - Plot the dividend reinjected company versus SP500
@@ -162,10 +164,37 @@ class App:
         self.data_viz.plot_seasonality(self.df_price)
 
         if self.worked_dividends:
+            
+            days_to_limit = dt.timedelta(days=365*5)
+
+            try:
+                last_five_years_df_dividend = self.df_dividend.loc[self.df_dividend.index[-1] - days_to_limit:]
+                last_five_years_df_price = self.df_price.loc[self.df_price.index[-1] - days_to_limit:]
+                works_five_years = True
+            except OverflowError:
+                works_five_years = False
+
+            dividend_calculator = DividendScoreCalculator(df_dividend=self.df_dividend  , df_price=self.df_price)
+
+            if works_five_years:
+                dividend_calculator_five_years = DividendScoreCalculator(df_dividend=last_five_years_df_dividend  , df_price=last_five_years_df_price)
+
+            scores_dict = dividend_calculator.main()
+
+            if works_five_years:
+                scores_dict_five_years = dividend_calculator_five_years.main()
+            
+            merged_yearly_div_price = dividend_calculator.merged_yearly_div_price
+
             self.data_viz.price_with_dividends(self.df_price[['Adj Close']] , self.df_dividend.drop('year' , axis=1 , errors='ignore'))
+            self.data_viz.plot_yield_time_serie(merged_yearly_div_price=merged_yearly_div_price)
             self.data_viz.annual_dividend_history() 
             self.data_viz.pct_change_dividends_summary()
             self.data_viz.pct_change_dividends_summary_five_year()
+            self.data_viz.plot_dividend_scores(scores_dict=scores_dict , five_years_back=False)
+            
+            if works_five_years:
+                self.data_viz.plot_dividend_scores(scores_dict=scores_dict_five_years , five_years_back=True)
 
 
     def save_presentation(self):

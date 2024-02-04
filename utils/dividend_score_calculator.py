@@ -1,55 +1,12 @@
 from typing import Dict , Union
+import datetime as dt
 import pickle
 import os 
 
-# Data manipulation
 import pandas as pd 
 import numpy as np
-import re 
-import textwrap
-from googletrans import Translator
-import datetime as dt
-from statsmodels.tsa.seasonal import seasonal_decompose
-from sklearn.preprocessing import MinMaxScaler
-from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
-import talib as ta
-
-
-# Data visualisation
-from matplotlib.dates import MonthLocator, DateFormatter
-import matplotlib.pyplot as plt
-import mplfinance as mpf
-import seaborn as sns 
-from pptx import Presentation
-from pptx.util import Inches 
-import dataframe_image as dsi
-
-
-
-# Api , scraping
-import requests
-from bs4 import BeautifulSoup
-import lxml
-from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.common.by import By 
-from webdriver_manager.chrome import ChromeDriverManager
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.common.exceptions import TimeoutException , UnexpectedAlertPresentException , NoAlertPresentException
-import yfinance as yf
-import pandas_datareader as web
-from pandas_datareader import data
-from pandas_datareader import DataReader
-yf.pdr_override()
-
 
 from .api_calls import ApiCaller
-
-# Note ; Les calculs commenceront toujours à year.now - 1
-# Il nous faut un petit benchmark , qui sera enregistré , et ne sera recalculé que si l'année change
-# Les entreprises de ce secteur seront au nombre de 10 , et seront représentative de ce qu'on attend d'une entreprise à dividende
-
 
 class DividendScoreCalculator:
 
@@ -65,6 +22,11 @@ class DividendScoreCalculator:
     def __init__(self , df_dividend:pd.DataFrame , df_price:pd.DataFrame):
         self.df_dividend = df_dividend 
         self.df_price = df_price
+
+        year_to_remove = dt.datetime.now().year
+
+        self.df_dividend = self.df_dividend.loc[self.df_dividend.index.year < year_to_remove]
+        self.df_price = self.df_price.loc[self.df_price.index.year < year_to_remove]
 
     def main(self) -> tuple:
 

@@ -595,6 +595,86 @@ class DataViz(PresPPT):
             plt.savefig('data\\price_with_dividends.png')
             plt.close('all')
             if self.english:
-                self.add_picture('data\\price_with_dividends.png' , 'Dividend percentage changes statistics by year , for the last five years') 
+                self.add_picture('data\\price_with_dividends.png' , 'Dividend percentage changes statistics by year (5 years)') 
             else:
-                self.add_picture('data\\price_with_dividends.png' , 'Statistiques de pourcentage de changement du dividende par année , pour les 5 dernières années')
+                self.add_picture('data\\price_with_dividends.png' , 'Statistiques de pourcentage de changement du dividende par année (5 ans)')
+
+
+    ### Dividend score calculators figs ### 
+    def plot_yield_time_serie(self , merged_yearly_div_price: pd.DataFrame):
+        """
+        Using the dividend score calculator script, plot a time series of the yield.
+        """
+        time_serie = merged_yearly_div_price[["year", "yield"]]
+
+        with sns.plotting_context("talk"):
+            plt.figure(figsize=(8, 5))
+
+            language_labels = {
+                'english': {'title': 'Yield evolution', 'xlabel': 'Year', 'ylabel': 'Yield'},
+                'french': {'title': 'Evolution du Rendement', 'xlabel': 'Année', 'ylabel': 'Rendement'}
+            }
+
+            labels = language_labels['english'] if self.english else language_labels['french']
+
+            plt.plot(time_serie['year'], time_serie['yield'], linestyle='-', color='b')
+            plt.title(labels['title'])
+            plt.ylabel(labels['ylabel'])
+            plt.grid(True)
+            
+            filename = f'data\\time_serie_yield.png'
+            plt.savefig(filename)
+            plt.close('all')
+
+            language_prefix = 'Dividend yield' if self.english else 'Evolution du rendement'
+            for_ou_pour = "for" if self.english else "pour"
+            add_picture_filename = f"{language_prefix} {for_ou_pour} {self.ticker}"
+            self.add_picture(filename, add_picture_filename)
+
+
+    def plot_dividend_scores(self, scores_dict: dict , five_years_back:bool):
+        """ 
+        Plot the dividend scores , using the DividendScoreCalculator class
+        """
+        to_plot = pd.DataFrame(scores_dict).T.rename(columns={0: "Ticker", 1: "Benchmark"})
+        to_plot.index = ["Strike years", "Profitability", "Stability", "Global"]
+
+        with sns.plotting_context("talk"):
+
+            title_en = f"Scores for {self.ticker} in blue, and benchmark in gold"
+            title_fr = f"Scores pour {self.ticker} en bleu, et benchmark en doré"
+
+            title_slide_en = "Dividend scores overall" if not five_years_back else "Dividend scores 5 years"
+            title_slide_fr = "Scores de dividende" if not five_years_back else "Scores de dividende 5 ans"
+
+            to_plot_labels = {
+                'english': {"title": title_en , "index_labels": to_plot.index , "title_slide" :  title_slide_en},
+                'french': {"title": title_fr , "index_labels": ["Années croissance", "Profitabilité", "Stabilité", "Global"] , "title_slide" :  title_slide_fr}
+            }
+
+            labels = to_plot_labels['english'] if self.english else to_plot_labels['french']
+
+            sns.set_style("darkgrid")
+            plt.figure(figsize=(8, 5))
+            sns.scatterplot(data=to_plot[["Ticker"]], x=labels["index_labels"], y=to_plot["Ticker"], s=150, edgecolor="black")
+            sns.scatterplot(data=to_plot[["Benchmark"]], x=labels["index_labels"], y=to_plot["Benchmark"], color="gold", s=150, edgecolor="black")
+
+            for i, (_, row) in enumerate(to_plot.iterrows()):
+                plt.scatter([i] * 2, [row['Ticker'], row['Benchmark']], s=150, edgecolor="black", color=['blue', 'gold'])
+                plt.text(i, row['Ticker'] + 1.5, f"{row['Ticker']:.2f}", ha='center', va='bottom', fontsize=12)
+                plt.text(i, row['Benchmark'] + 1.5, f"{row['Benchmark']:.2f}", ha='center', va='bottom', fontsize=12)
+
+            
+            plt.title(labels["title"])
+            plt.yticks([])
+            plt.gca().get_yaxis().set_visible(False)
+            plt.xlabel(None)
+
+            plt.ylim(to_plot[['Ticker', 'Benchmark']].values.min() - 7, to_plot[['Ticker', 'Benchmark']].values.max() + 7)
+
+            picture_filename = 'data\\dividend_scores.png' if not five_years_back else 'data\\dividend_scores_five_years.png'
+            plt.savefig(picture_filename)
+
+            self.add_picture(picture_filename, labels['title_slide'])
+            plt.close('all')
+
