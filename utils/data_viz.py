@@ -167,7 +167,7 @@ class DataViz(PresPPT):
         with sns.plotting_context('notebook'):
             sns.set_style('darkgrid')
             plt.figure(figsize=(8,5))
-            sns.barplot(x='year' , y='Dividends' , data=d__ , edgecolor='black')
+            sns.barplot(x='year' , y='Dividends' , data=d__ , edgecolor='black' , color="gold")
             plt.ylabel('Montant')
             plt.xlabel('Année')
             plt.xticks(rotation = 90)
@@ -601,12 +601,16 @@ class DataViz(PresPPT):
 
 
     ### Dividend score calculators figs ### 
-    def plot_yield_time_serie(self , merged_yearly_div_price: pd.DataFrame):
+    def plot_yield_time_serie(self , merged_yearly_div_price: pd.DataFrame , last_five_years:bool=False):
         """
         Using the dividend score calculator script, plot a time series of the yield.
         """
         time_serie = merged_yearly_div_price[["year", "yield"]]
 
+        if last_five_years:
+            time_serie = time_serie[time_serie["year"].astype(int) >= (dt.datetime.now().year-5)]
+            time_serie["year"] = time_serie["year"].astype(str)
+        
         with sns.plotting_context("talk"):
             plt.figure(figsize=(8, 5))
 
@@ -622,13 +626,16 @@ class DataViz(PresPPT):
             plt.ylabel(labels['ylabel'])
             plt.grid(True)
             
-            filename = f'data\\time_serie_yield.png'
+            filename = 'data\\time_serie_yield.png' if not last_five_years else 'data\\time_serie_yield_five_years.png'
             plt.savefig(filename)
             plt.close('all')
 
             language_prefix = 'Dividend yield' if self.english else 'Evolution du rendement'
             for_ou_pour = "for" if self.english else "pour"
-            add_picture_filename = f"{language_prefix} {for_ou_pour} {self.ticker}"
+            five_years_or_not_to_add = "5 years" if self.english else "5 ans"
+            five_years_or_not = "" if not last_five_years else five_years_or_not_to_add
+
+            add_picture_filename = f"{language_prefix} {for_ou_pour} {self.ticker} {five_years_or_not}"
             self.add_picture(filename, add_picture_filename)
 
 

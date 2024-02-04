@@ -1,4 +1,4 @@
-from typing import Dict , Union
+from typing import Dict , Union , Tuple
 import datetime as dt
 import pickle
 import os 
@@ -19,9 +19,10 @@ class DividendScoreCalculator:
 
     BENCHMARK_FOLDER = os.path.join(os.path.dirname(__file__) , "benchmark_dividends_scores")
 
-    def __init__(self , df_dividend:pd.DataFrame , df_price:pd.DataFrame):
+    def __init__(self , df_dividend:pd.DataFrame , df_price:pd.DataFrame , five_years_or_not:bool=False):
         self.df_dividend = df_dividend 
         self.df_price = df_price
+        self.five_years_or_not = five_years_or_not
 
         year_to_remove = dt.datetime.now().year
 
@@ -31,9 +32,12 @@ class DividendScoreCalculator:
     def main(self) -> tuple:
 
         scores_ticker = self.get_all_scores()
-        scores_benchmark = self.get_benchmark()
+        scores_benchmark:Tuple[dict , dict] = self.get_benchmark()
 
-        return scores_ticker , scores_benchmark
+        if not self.five_years_or_not:
+            return scores_ticker , scores_benchmark[0]
+        if self.five_years_or_not:
+            return scores_ticker , scores_benchmark[1]
         
     def get_all_scores(self) -> Dict[str , Union[int , float]]:
 
@@ -139,7 +143,7 @@ class DividendScoreCalculator:
 
 
     @classmethod
-    def get_benchmark(cls) -> Dict[str , dict]:
+    def get_benchmark(cls) -> Tuple[dict , dict]:
         """ 
         Compute the benchmark , based of the benchmark_tickers class argument
         """
@@ -159,12 +163,13 @@ class DividendScoreCalculator:
                 pickle.dump(obj, file)
 
         current_year = str(dt.datetime.now().year)
+
         path_to_save_benchmark_scores = os.path.join(cls.BENCHMARK_FOLDER , current_year)
-        if os.path.exists(path_to_save_benchmark_scores):
+        path_to_save_benchmark_scores_five_years = os.path.join(cls.BENCHMARK_FOLDER , current_year + "_five_years")
+
+        if os.path.exists(path_to_save_benchmark_scores) and os.path.exists(path_to_save_benchmark_scores_five_years):
             if os.path.basename(path_to_save_benchmark_scores)[:4] == current_year:
-                return _load_pickle_object(path_to_save_benchmark_scores)
-
-
+                return _load_pickle_object(path_to_save_benchmark_scores) , _load_pickle_object(path_to_save_benchmark_scores_five_years)
 
         # The current year , that we don't want to use to avoid misscalculation for the dividends (only ended fiscal years)
         year_to_remove = dt.datetime.now().year 
@@ -175,24 +180,46 @@ class DividendScoreCalculator:
         stability_scores = []
         strikes = []
 
+        global_scores_five_years = []
+        profitability_scores_five_years = []
+        stability_scores_five_years = []
+        strikes_five_years = []
+
         ticker:str
         for ticker in DividendScoreCalculator.benchmark_tickers:
 
             df_dividend = ApiCaller().get_dividend(ticker=ticker)
             df_price = ApiCaller().get_price(ticker=ticker)
 
+            minus_5_years = dt.timedelta(days=365*5)
+
+            df_dividend_five_years = ApiCaller().get_dividend(ticker=ticker)
+            df_price_five_years = ApiCaller().get_price(ticker=ticker)
+
+            df_dividend_five_years = df_dividend_five_years[df_dividend_five_years.index[-1] - minus_5_years:]
+            df_price_five_years = df_price_five_years[df_price_five_years.index[-1] - minus_5_years:]
+
             df_dividend = df_dividend.loc[df_dividend.index.year < year_to_remove]
             df_price = df_price.loc[df_price.index.year < year_to_remove]
 
+            df_dividend_five_years = df_dividend_five_years.loc[df_dividend_five_years.index.year < year_to_remove]
+            df_price_five_years = df_price_five_years.loc[df_price_five_years.index.year < year_to_remove]
+
             dividend_score_calculator = cls(df_dividend=df_dividend , df_price=df_price)
+            dividend_score_calculator_five_years = cls(df_dividend=df_dividend_five_years , df_price=df_price_five_years)
 
             scores = dividend_score_calculator.get_all_scores()
+            scores_five_years = dividend_score_calculator_five_years.get_all_scores()
             
             global_scores.append(scores["global_score"])
             profitability_scores.append(scores["profitability_score"])
             stability_scores.append(scores["stability_score"])
             strikes.append(scores["strike"])
 
+            global_scores_five_years.append(scores_five_years["global_score"])
+            profitability_scores_five_years.append(scores_five_years["profitability_score"])
+            stability_scores_five_years.append(scores_five_years["stability_score"])
+            strikes_five_years.append(scores_five_years["strike"])
 
         benchmark_scores = {
                         "strike": round(np.mean(strikes)),
@@ -200,6 +227,15 @@ class DividendScoreCalculator:
                         "stability_score" : round(np.mean(stability_scores),3) , 
                         "global_score" : round(np.mean(global_scores),3)
                             }
+        
+        benchmark_scores_five_years = {
+                        "strike": round(np.mean(strikes_five_years)),
+                        "profitability_score": round(np.mean(profitability_scores_five_years),3),
+                        "stability_score" : round(np.mean(stability_scores_five_years),3) , 
+                        "global_score" : round(np.mean(global_scores_five_years),3)
+                                      }
 
         _save_pickle_object(obj=benchmark_scores , file_path=path_to_save_benchmark_scores)
-        return benchmark_scores
+        _save_pickle_object(obj=benchmark_scores_five_years , file_path=path_to_save_benchmark_scores_five_years)
+
+        return benchmark_scores , benchmark_scores_five_years

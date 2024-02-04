@@ -24,7 +24,7 @@ warnings.filterwarnings("ignore")
 
 class App:
 
-    def __init__(self , company_name:str , path_to_save:str , ticker:str , language:str):
+    def __init__(self , company_name:str , path_to_save:str , ticker:str , language:str="Français"):
 
         self.company_name = company_name
         self.path_to_save = path_to_save
@@ -58,7 +58,6 @@ class App:
         Preprocess step after scraping of the presentation
         Add the cleanned description in the presentation
         """
-
         def __jump_line(s : str , every:int=80):
             '''Jump line every 80 words (for the description) , to better suits the power-point format'''
             s = '\n'.join(textwrap.wrap(s , every))
@@ -70,11 +69,11 @@ class App:
             return s
         
         if not self.english:
-            self.description += '\nLa capitalisation , valeur entreprise , chiffre d\'affaire , EBITDA , EBIT , EBT , le résultat net , la dette et trésorerie net , le free cash flow , les capitaux propres , le total des actifs et le Capex sont en millions.'
+            self.description += f'\nLa capitalisation ,valeur entreprise, chiffre d\'affaire, EBITDA, EBIT, EBT, le résultat net, la dette et trésorerie net, le free cash flow, les capitaux propres, le total des actifs et le Capex sont en millions. Le benchmark des scores de dividendes est composé des tickers suivants ; {",".join(DividendScoreCalculator.benchmark_tickers)}'
         
         if self.english:
             self.description = self.t(self.description)
-            self.description += self.t('\nLa capitalisation , valeur entreprise , chiffre d\'affaire , EBITDA , EBIT , EBT , le résultat net , la dette et trésorerie net , le free cash flow , les capitaux propres , le total des actifs et le Capex sont en millions.')
+            self.description += self.t('\nLa capitalisation, valeur entreprise, chiffre d\'affaire, EBITDA, EBIT, EBT, le résultat net, la dette et trésorerie net, le free cash flow, les capitaux propres, le total des actifs et le Capex sont en millions.\nLe benchmark des scores de dividendes est composé des tickers suivants ; ') + ",".join(DividendScoreCalculator.benchmark_tickers)
 
         if len(self.description) < 960:
             self.description = __jump_line(self.description)
@@ -174,10 +173,14 @@ class App:
             except OverflowError:
                 works_five_years = False
 
-            dividend_calculator = DividendScoreCalculator(df_dividend=self.df_dividend  , df_price=self.df_price)
+            dividend_calculator = DividendScoreCalculator(df_dividend=self.df_dividend ,
+                                                          df_price=self.df_price ,
+                                                          five_years_or_not=False)
 
             if works_five_years:
-                dividend_calculator_five_years = DividendScoreCalculator(df_dividend=last_five_years_df_dividend  , df_price=last_five_years_df_price)
+                dividend_calculator_five_years = DividendScoreCalculator(df_dividend=last_five_years_df_dividend  ,
+                                                                         df_price=last_five_years_df_price ,
+                                                                         five_years_or_not=True)
 
             scores_dict = dividend_calculator.main()
 
@@ -187,7 +190,8 @@ class App:
             merged_yearly_div_price = dividend_calculator.merged_yearly_div_price
 
             self.data_viz.price_with_dividends(self.df_price[['Adj Close']] , self.df_dividend.drop('year' , axis=1 , errors='ignore'))
-            self.data_viz.plot_yield_time_serie(merged_yearly_div_price=merged_yearly_div_price)
+            self.data_viz.plot_yield_time_serie(merged_yearly_div_price=merged_yearly_div_price , last_five_years=False)
+            self.data_viz.plot_yield_time_serie(merged_yearly_div_price=merged_yearly_div_price , last_five_years=True)
             self.data_viz.annual_dividend_history() 
             self.data_viz.pct_change_dividends_summary()
             self.data_viz.pct_change_dividends_summary_five_year()
