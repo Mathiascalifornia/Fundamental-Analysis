@@ -1,5 +1,6 @@
 import pathlib
 import yaml 
+import os 
 
 import tqdm 
 
@@ -21,6 +22,10 @@ for ticker in tqdm.tqdm(config):
 
     dict_ticker:dict = config[ticker]
 
-    App(ticker=ticker , company_name=dict_ticker["company_name"] ,
-        language=dict_ticker.get("language" , "Français") ,
-        path_to_save=dict_ticker["path_to_save"]).main()
+    if not os.path.exists(dict_ticker["path_to_save"]):
+
+        App(ticker=ticker , company_name=dict_ticker["company_name"] ,
+            language=dict_ticker.get("language" , "Français") ,
+            path_to_save=dict_ticker["path_to_save"]).main()
+        
+        print(f"{ticker} Done !")
