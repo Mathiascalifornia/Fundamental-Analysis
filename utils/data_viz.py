@@ -80,10 +80,14 @@ class DataViz(PresPPT):
 
 
 
-    def plot_regression(self , df : pd.DataFrame):
+    def plot_regression(self , df : pd.DataFrame , five_years_back:bool=False):
         '''Plot the stock price with a linear regression , to see the trend'''
         
-        df_ = df.copy()
+        df_ = df.copy() 
+
+        if five_years_back:
+            df_ = df_[df_.index[-1] - dt.timedelta(days=365*5):]
+            
         df_.drop(['High', 'Low', 'Open', 'Close', 'Volume'] , axis=1 , inplace=True)
         df_['day_from_start'] = (df_.index - df_.index[-1]).days
         X = df_['day_from_start'].values
@@ -101,9 +105,16 @@ class DataViz(PresPPT):
             plt.savefig('data\\linear_regression.png')
             plt.close('all')
             if self.english:
-                self.add_picture('data\\linear_regression.png' , 'Linear regression')
+                if not five_years_back:
+                    self.add_picture('data\\linear_regression.png' , 'Linear regression') 
+                if five_years_back:
+                    self.add_picture('data\\linear_regression.png' , 'Linear regression five years') 
             else:
-                self.add_picture('data\\linear_regression.png' , 'Régression linéaire')
+                if not five_years_back:
+                    self.add_picture('data\\linear_regression.png' , 'Régression linéaire')
+                if five_years_back:
+                    self.add_picture('data\\linear_regression.png' , 'Régression linéaire (5 ans)')
+
 
 
     def plot_maximum_draw_down(self , df : pd.DataFrame):

@@ -17,7 +17,7 @@ from utils.dividend_score_calculator import DividendScoreCalculator
 warnings.filterwarnings("ignore")
 
 ### Next dev ###
-# - Plot the dividend scores , with a time serie of the yield plotted on the back
+# - Add the mean yield of the last 5 years , and compare it from today's one , as advised by Raphel Carteni
 # - Compute warning signs 
 # - Plot the volume time series
 # - Plot the dividend reinjected company versus SP500
@@ -75,7 +75,7 @@ class App:
             self.description = self.t(self.description)
             self.description += self.t('\nLa capitalisation, valeur entreprise, chiffre d\'affaire, EBITDA, EBIT, EBT, le résultat net, la dette et trésorerie net, le free cash flow, les capitaux propres, le total des actifs et le Capex sont en millions.\nLe benchmark des scores de dividendes est composé des tickers suivants ; ') + ",".join(DividendScoreCalculator.benchmark_tickers)
 
-        if len(self.description) < 960:
+        if len(self.description) <= 960:
             self.description = __jump_line(self.description)
             self.data_viz.pres_description(self.description , title=self.title)
         else:
@@ -152,7 +152,8 @@ class App:
     def plot_stock_prices_figures(self):
         self.data_viz.plot_maximum_draw_down(df=self.df_price)
         self.data_viz.plot_against_benmark()
-        self.data_viz.plot_regression(df=self.df_price)       
+        self.data_viz.plot_regression(df=self.df_price , five_years_back=False)     
+        self.data_viz.plot_regression(df=self.df_price , five_years_back=True)       
     
 
         if len(self.df_price) > 1200:

@@ -8,7 +8,7 @@ from app_v15 import App
 
 ### Made to launch several instance of the app in a row , using the yaml config file ### 
 
-def load_yaml_file(file_path:pathlib.Path="config_file.yaml") -> dict:
+def load_yaml_file(file_path:pathlib.Path="config_file_dividend_rocks.yaml") -> dict:
     """ 
     Load the config file
     """
