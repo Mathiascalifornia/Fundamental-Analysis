@@ -25,7 +25,7 @@ yf.pdr_override()
 # Get rid of the scientific notation
 pd.set_option('display.float_format', lambda x: '%.2f' % x)
 
-from utils.datacontainer import DataContainer
+from datacontainer import DataContainer
 
 class ScrapingSelenium:
 
@@ -154,7 +154,7 @@ class ScrapingSelenium:
         """
         
         ticker = self.ticker.split('.')[0] if '.' in self.ticker else self.ticker 
-        url = ScrapingSelenium.BASE_URL_FINVIZ.format(ticker)
+        url = ScrapingSelenium.datacontainer.BASE_URL_FINVIZ.format(ticker)
 
         self.driver.get(url)
         time.sleep(5)

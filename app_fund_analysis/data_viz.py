@@ -21,7 +21,7 @@ from pandas_datareader import data
 from pandas_datareader import DataReader
 yf.pdr_override()
 
-from .pres import PresPPT
+from pres import PresPPT
 
 
 
@@ -289,33 +289,35 @@ class DataViz(PresPPT):
         '''Plot a pie plot of the three biggest institutions shareholders'''
         data_ = yf.Ticker(str(self.ticker).upper())
 
-        d_f = data_.major_holders.iloc[:-2]
-        particuliers = 1 - d_f.sum().values[0]
+        pct = data_.major_holders.iloc[:-2][0].apply(lambda x : x.replace("%" , "")).astype(float)
+
+        insider = pct.iloc[0]
+        institution = pct.iloc[1]
+
+        particuliers = 100 - sum((insider , institution))
         
         color = ['red' , 'lightgreen' , 'gold']
         explode = [0.12 , 0.02 , 0.05]
 
-        values_to_plot = d_f["Value"].values
 
         color = ['red' , 'lightgreen' , 'gold']
         explode = [0.12 , 0.02 , 0.05]
 
         if not self.english:
-            labels = [f'Initiés : {round(values_to_plot[0] , 3)}%' , f'Institutions:{round(values_to_plot[1] , 3)} %' , f'Autre : {round(particuliers , 3)}%']
+            labels = [f'Initiés : {round(insider , 3)}%' , f'Institutions:{round(institution , 3)} %' , f'Autre : {round(particuliers , 3)}%']
         else:
-            labels = [f'Initiates : {round(values_to_plot[0] , 3)}%' , f'Institutions:{round(values_to_plot[1] , 3)} %' , f'Other : {round(particuliers , 3)}%']
+            labels = [f'Initiates : {round(insider , 3)}%' , f'Institutions:{round(institution , 3)} %' , f'Other : {round(particuliers , 3)}%']
 
 
         plt.figure(figsize=(5,5))
-        plt.pie([values_to_plot[0] , values_to_plot[1] , particuliers] , colors=color , explode=explode)
+        plt.pie([insider , institution , particuliers] , colors=color , explode=explode)
         plt.legend(labels)
         plt.savefig('data\\shareholders.png')
         plt.close('all')
 
-        if not self.english:
-            self.add_picture('data\\shareholders.png' , 'Repartition des investisseurs' , left=2.4 , top=1.5)
-        else:
-            self.add_picture('data\\shareholders.png' , 'Investor distribution' , left=2.4 , top=1.5)
+        title = 'Repartition des investisseurs' if not self.english else 'Investor distribution'
+        self.add_picture('data\\shareholders.png' , title , left=2.4 , top=1.5)
+
 
 
 

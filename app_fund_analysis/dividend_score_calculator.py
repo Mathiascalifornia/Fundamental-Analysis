@@ -6,7 +6,7 @@ import os
 import pandas as pd 
 import numpy as np
 
-from .api_calls import ApiCaller
+from api_calls import ApiCaller
 
 class DividendScoreCalculator:
 
