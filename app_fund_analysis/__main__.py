@@ -7,12 +7,12 @@ import dataframe_image as dsi
 import textwrap
 import numpy as np 
 
-from utils.scraping import ScrapingSelenium
-from utils.data_viz import DataViz
-from utils.tkinter_windows import MainWindows
-from utils.finance_computation import FinanceComputationner
-from utils.api_calls import ApiCaller
-from utils.dividend_score_calculator import DividendScoreCalculator
+from scraping import ScrapingSelenium
+from data_viz import DataViz
+from tkinter_windows import MainWindows
+from finance_computation import FinanceComputationner
+from api_calls import ApiCaller
+from dividend_score_calculator import DividendScoreCalculator
 
 warnings.filterwarnings("ignore")
 
