@@ -1,12 +1,10 @@
 import datetime
-from typing import Optional , Any
-import pickle
+from typing import Optional
 import os
 
 import pandas as pd 
 import numpy as np
 import yfinance as yf
-from pandas_datareader import data
 
 import warnings
 warnings.filterwarnings("ignore")
@@ -22,7 +20,7 @@ class DividendGainCalculator:
     """
     
     # Old companies , highly representative of what we except from a good dividend company
-    BENCHMARK_TICKERS = ("KO" , "JNJ" , "XOM" , "MMM" , "ITW" , "PM" , "IBM" , "ED" , "O" , "PG" , "EPD" , "BLK" , "VZ" , "NWN")
+    BENCHMARK_TICKERS = ("KO" , "JNJ" , "XOM" , "MMM" , "ITW" , "IBM" , "ED" , "O" , "PG" , "EPD" , "BLK" , "VZ" , "NWN")
     MINUS_YEARS_TO_COMPUTE = (3 , 5 , 10 , 15 , 20)
     BENCHMARK_FOLDER = "..\\data\\benchmark_backtesting_scores"
 
@@ -56,6 +54,9 @@ class DividendGainCalculator:
 
                 result:pd.DataFrame = cls(df_div=df_div , df_price=df_price).main()
                 
+                print(ticker)
+                print(result)
+
                 year:int
                 for year in DividendGainCalculator.MINUS_YEARS_TO_COMPUTE:
 
@@ -81,6 +82,7 @@ class DividendGainCalculator:
         merged_df:pd.DataFrame
         merged_df = self.merge_price_and_div_df(df_price=self.df_price , 
                                                 df_div=self.df_div)
+        
         
         # Set the dataframe in the correct time span
         merged_df = self.cut_current_year_values(merged_df=merged_df)

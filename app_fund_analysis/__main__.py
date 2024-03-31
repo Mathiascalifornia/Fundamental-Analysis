@@ -69,11 +69,11 @@ class App:
             return s
         
         if not self.english:
-            self.description += f'\nLa capitalisation ,valeur entreprise, chiffre d\'affaire, EBITDA, EBIT, EBT, le résultat net, la dette et trésorerie net, le free cash flow, les capitaux propres, le total des actifs et le Capex sont en millions. Le benchmark des scores de dividendes est composé des tickers suivants ; {",".join(DividendScoreCalculator.benchmark_tickers)}'
+            self.description += f'\nLa capitalisation ,valeur entreprise, chiffre d\'affaire, EBITDA, EBIT, EBT, le résultat net, la dette et trésorerie net, le free cash flow, les capitaux propres, le total des actifs et le Capex sont en millions. Le benchmark des scores de dividendes est composé des tickers suivants ; {",".join(DividendScoreCalculator.BENCHMARK_TICKERS)}'
         
         if self.english:
             self.description = self.t(self.description)
-            self.description += self.t('\nLa capitalisation, valeur entreprise, chiffre d\'affaire, EBITDA, EBIT, EBT, le résultat net, la dette et trésorerie net, le free cash flow, les capitaux propres, le total des actifs et le Capex sont en millions.\nLe benchmark des scores de dividendes est composé des tickers suivants ; ') + ",".join(DividendScoreCalculator.benchmark_tickers)
+            self.description += self.t('\nLa capitalisation, valeur entreprise, chiffre d\'affaire, EBITDA, EBIT, EBT, le résultat net, la dette et trésorerie net, le free cash flow, les capitaux propres, le total des actifs et le Capex sont en millions.\nLe benchmark des scores de dividendes est composé des tickers suivants ; ') + ",".join(DividendScoreCalculator.BENCHMARK_TICKERS)
 
         if len(self.description) <= 960:
             self.description = __jump_line(self.description)
@@ -168,7 +168,7 @@ class App:
             days_to_limit = dt.timedelta(days=365*5)
 
             try:
-                
+
                 last_five_years_df_dividend = self.df_dividend.loc[self.df_dividend.index[-1] - days_to_limit:]
                 last_five_years_df_price = self.df_price.loc[self.df_price.index[-1] - days_to_limit:]
                 works_five_years = True
