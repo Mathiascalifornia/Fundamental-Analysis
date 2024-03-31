@@ -310,7 +310,7 @@ class DataViz(PresPPT):
 
 
         plt.figure(figsize=(5,5))
-        plt.pie([insider , institution , particuliers] , colors=color , explode=explode)
+        plt.pie([int(insider) , int(institution) , int(particuliers)] , colors=color , explode=explode)
         plt.legend(labels)
         plt.savefig('data\\shareholders.png')
         plt.close('all')
@@ -629,7 +629,7 @@ class DataViz(PresPPT):
 
             language_labels = {
                 'english': {'title': 'Yield evolution', 'xlabel': 'Year', 'ylabel': 'Yield'},
-                'french': {'title': 'Evolution du Rendement', 'xlabel': 'Année', 'ylabel': 'Rendement'}
+                'french': {'title': 'Évolution du Rendement', 'xlabel': 'Année', 'ylabel': 'Rendement'}
             }
 
             labels = language_labels['english'] if self.english else language_labels['french']

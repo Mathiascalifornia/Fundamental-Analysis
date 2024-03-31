@@ -156,10 +156,10 @@ class App:
         self.data_viz.plot_regression(df=self.df_price , five_years_back=True)       
     
 
-        if len(self.df_price) > 1200:
-            self.data_viz.plot_rsi()
+        # if len(self.df_price) > 1200:
+        #     self.data_viz.plot_rsi()
 
-        self.data_viz.plot_zoom_candles()
+        # self.data_viz.plot_zoom_candles()
         self.data_viz.plot_correlation()
         self.data_viz.plot_seasonality(self.df_price)
 
@@ -168,9 +168,11 @@ class App:
             days_to_limit = dt.timedelta(days=365*5)
 
             try:
+                
                 last_five_years_df_dividend = self.df_dividend.loc[self.df_dividend.index[-1] - days_to_limit:]
                 last_five_years_df_price = self.df_price.loc[self.df_price.index[-1] - days_to_limit:]
                 works_five_years = True
+
             except OverflowError:
                 works_five_years = False
 

@@ -1,5 +1,4 @@
 *.ipynb
 old_stuff/
-data/
 __pycache__/
 fundamental_analysis_env/
