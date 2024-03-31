@@ -1,4 +1,4 @@
-from typing import Dict , Union , Tuple
+from typing import Dict , Union , Tuple , Any
 import datetime as dt
 import pickle
 import os 
@@ -7,17 +7,20 @@ import pandas as pd
 import numpy as np
 
 from api_calls import ApiCaller
+from pickle_loader import PickleLoaderAndSaviour
 
 class DividendScoreCalculator:
 
     # Old companies , highly representative of what we except from a good dividend company
-    benchmark_tickers = ("KO" , "JNJ" , "XOM" , "MMM" , "ITW" , "PM" , "IBM" , "ED" , "O" , "PG" , "EPD" , "BLK" , "VZ" , "NWN")
+    BENCHMARK_TICKERS = ("KO" , "JNJ" , "XOM" , "MMM" , "ITW" , "PM" , "IBM" , "ED" , "O" , "PG" , "EPD" , "BLK" , "VZ" , "NWN")
 
     PROFITABILITY_SCORE_WEIGHT = 1.5
     STABILITY_SCORE_WEIGHT = 1
     STRIKE_WEIGHT = 0.5
 
-    BENCHMARK_FOLDER = os.path.join(os.path.dirname(__file__) , "benchmark_dividends_scores")
+    BENCHMARK_FOLDER = "..\\data\\benchmark_dividends_scores"
+
+    pickle_loader = PickleLoaderAndSaviour()
 
     def __init__(self , df_dividend:pd.DataFrame , df_price:pd.DataFrame , five_years_or_not:bool=False):
         self.df_dividend = df_dividend 
@@ -145,22 +148,9 @@ class DividendScoreCalculator:
     @classmethod
     def get_benchmark(cls) -> Tuple[dict , dict]:
         """ 
-        Compute the benchmark , based of the benchmark_tickers class argument
+        Compute the benchmark , based of the BENCHMARK_TICKERS class argument
+        or , if the year 
         """
-
-        def _load_pickle_object(file_path):
-            """
-            Load an object from a pickle file
-            """
-            with open(file_path, 'rb') as file:
-                return pickle.load(file)
-
-        def _save_pickle_object(obj, file_path):
-            """
-            Save an object to a pickle file
-            """
-            with open(file_path, 'wb') as file:
-                pickle.dump(obj, file)
 
         current_year = str(dt.datetime.now().year)
 
@@ -169,7 +159,10 @@ class DividendScoreCalculator:
 
         if os.path.exists(path_to_save_benchmark_scores) and os.path.exists(path_to_save_benchmark_scores_five_years):
             if os.path.basename(path_to_save_benchmark_scores)[:4] == current_year:
-                return _load_pickle_object(path_to_save_benchmark_scores) , _load_pickle_object(path_to_save_benchmark_scores_five_years)
+
+                # If we are still on the same year , just load the pickle
+                return (DividendScoreCalculator.pickle_loader.load_pickle_object(path_to_save_benchmark_scores) , 
+                        DividendScoreCalculator.pickle_loader.load_pickle_object(path_to_save_benchmark_scores_five_years))
 
         # The current year , that we don't want to use to avoid misscalculation for the dividends (only ended fiscal years)
         year_to_remove = dt.datetime.now().year 
@@ -186,7 +179,7 @@ class DividendScoreCalculator:
         strikes_five_years = []
 
         ticker:str
-        for ticker in DividendScoreCalculator.benchmark_tickers:
+        for ticker in DividendScoreCalculator.BENCHMARK_TICKERS:
 
             df_dividend = ApiCaller().get_dividend(ticker=ticker)
             df_price = ApiCaller().get_price(ticker=ticker)
@@ -235,7 +228,11 @@ class DividendScoreCalculator:
                         "global_score" : round(np.mean(global_scores_five_years),3)
                                       }
 
-        _save_pickle_object(obj=benchmark_scores , file_path=path_to_save_benchmark_scores)
-        _save_pickle_object(obj=benchmark_scores_five_years , file_path=path_to_save_benchmark_scores_five_years)
+
+        DividendScoreCalculator.pickle_loader.save_pickle_object(obj=benchmark_scores , 
+                                                                 file_path=path_to_save_benchmark_scores)
+        
+        DividendScoreCalculator.pickle_loader.save_pickle_object(obj=benchmark_scores_five_years , 
+                                                                 file_path=path_to_save_benchmark_scores_five_years)
 
         return benchmark_scores , benchmark_scores_five_years
