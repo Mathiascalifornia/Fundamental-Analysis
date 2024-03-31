@@ -120,7 +120,7 @@ class DividendScoreCalculator:
         def _get_median_yield() -> float:
             return self.merged_yearly_div_price["yield"].median()
         
-        return round(((_compute_median_growth_pct_div() + _get_median_yield()) / 2) * 10 , 3)
+        return round(((_compute_median_growth_pct_div() + (_get_median_yield() * 0.5)) / 1.5) * 10 , 3)
         
 
     def compute_global_score(self) -> float:
