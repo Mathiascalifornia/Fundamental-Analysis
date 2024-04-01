@@ -34,8 +34,23 @@ class DividendGainCalculator:
         self.df_div = df_div
 
 
+
+
+    def main(self) -> pd.DataFrame:
+        
+        results_ticker:pd.DataFrame = self.get_results()
+        results_benchmark:pd.DataFrame = DividendGainCalculator.get_benchmark()
+
+        results_ticker["Gains benchmark"] = results_benchmark["Gains benchmark"]
+
+        results_ticker = results_ticker.dropna()
+        results_ticker["Gains"] = results_ticker["Gains"].round().astype(int)
+        
+        return results_ticker
+
+
     @classmethod
-    def compute_benchmark(cls):
+    def get_benchmark(cls):
 
         path_pickle_results_current_year = os.path.join(DividendGainCalculator.BENCHMARK_FOLDER , str(datetime.datetime.now().year))
 
@@ -52,10 +67,8 @@ class DividendGainCalculator:
                 df_price:pd.DataFrame = DividendGainCalculator.api_caller.get_price(ticker=ticker)
                 df_div:pd.DataFrame = DividendGainCalculator.api_caller.get_dividend(ticker=ticker)
 
-                result:pd.DataFrame = cls(df_div=df_div , df_price=df_price).main()
-                
-                print(ticker)
-                print(result)
+                result:pd.DataFrame = cls(df_div=df_div , 
+                                          df_price=df_price).get_results()
 
                 year:int
                 for year in DividendGainCalculator.MINUS_YEARS_TO_COMPUTE:
@@ -71,20 +84,18 @@ class DividendGainCalculator:
 
             DividendGainCalculator.pickle_loader.save_pickle_object(obj=df_results , file_path=path_pickle_results_current_year)
 
-            return df_results
-    
-
+            return df_results # Same format as the results of the 'get_results' method , except the 'Gain' column name
         
             
 
-    def main(self) -> pd.DataFrame:
+    def get_results(self) -> pd.DataFrame:
 
         merged_df:pd.DataFrame
         merged_df = self.merge_price_and_div_df(df_price=self.df_price , 
                                                 df_div=self.df_div)
         
         # Set the dataframe in the correct time span
-        merged_df = self.cut_current_year_values(merged_df=merged_df)
+        merged_df = self.cut_current_year_values(df=merged_df)
 
         return self.get_yearly_gains(merged_df=merged_df)
 
@@ -93,29 +104,19 @@ class DividendGainCalculator:
     def get_yearly_gains(merged_df:pd.DataFrame) -> pd.DataFrame:
 
         def __check_enought_time_horizon(merged_df:pd.DataFrame , minus_n_years:int) -> bool:
+            """ 
+            Check that we have enought data to make the computation for each time spans
+            """
             return round((merged_df.index[-1] - merged_df.index[0]).days / 365.25) >= minus_n_years
         
-        def __subset_over_minus_n_years(minus_n_years:Optional[int] , 
-                                        merged_df:pd.DataFrame) -> pd.DataFrame:
-            
-            """ 
-            Return the merged dataframe minus n years
-            """
-            if minus_n_years is None:
-                return merged_df
-            
-            date_to_subset = merged_df.index[-1]
-            lower_boundry = date_to_subset - datetime.timedelta(days=minus_n_years*365)
-            return merged_df[str(lower_boundry):]
-
 
         results = {}
         for year in DividendGainCalculator.MINUS_YEARS_TO_COMPUTE:
 
             if __check_enought_time_horizon(merged_df=merged_df , minus_n_years=year):
 
-                right_range_merged_df = __subset_over_minus_n_years(minus_n_years=year , 
-                                                                    merged_df=merged_df)
+                right_range_merged_df = DividendGainCalculator.subset_over_minus_n_years(minus_n_years=year , 
+                                                                                         df=merged_df)
                 
                 
                 computed_df = DividendGainCalculator.compute_compound_interest(merged_df=right_range_merged_df)
@@ -127,23 +128,39 @@ class DividendGainCalculator:
 
         return pd.DataFrame(results.items(), columns=["Years of investment", "Gains"])
 
+   
 
     @staticmethod
-    def cut_current_year_values(merged_df:pd.DataFrame) -> pd.DataFrame:
+    def subset_over_minus_n_years(minus_n_years:Optional[int] , 
+                                  df:pd.DataFrame) -> pd.DataFrame:
+        
+        """ 
+        Return the time serie dataframe minus n years
+        """
+        if minus_n_years is None:
+            return df
+        
+        date_to_subset = df.index[-1]
+        lower_boundry = date_to_subset - datetime.timedelta(days=minus_n_years*365)
+        return df[str(lower_boundry):]
+
+
+    @staticmethod
+    def cut_current_year_values(df:pd.DataFrame) -> pd.DataFrame:
         """ 
         Make sure we don't take this year into account , to be able to compare with the benchmark
         """
         current_year = datetime.datetime.now().year
         first_jan_string = f"{current_year}-01-01"
-        return merged_df[:first_jan_string]
+        return df[:first_jan_string]
 
 
     @staticmethod
     def merge_price_and_div_df(df_price:pd.DataFrame , 
-                            df_div:pd.DataFrame) -> pd.DataFrame:
+                               df_div:pd.DataFrame) -> pd.DataFrame:
         
         merged_df = df_div.merge(df_price , left_index=True , right_index=True , how="left")
-        return merged_df.ffill().dropna()
+        return merged_df.dropna() # .ffill().
     
     @staticmethod
     def compute_compound_interest(merged_df:pd.DataFrame , 
@@ -165,13 +182,15 @@ class DividendGainCalculator:
         merged_df.iloc[0 , merged_df.columns.get_loc("Capital")] = initial_capital # Set the initial capital
         merged_df.iloc[0 , merged_df.columns.get_loc("N shares")] = merged_df.iloc[0]["Capital"] / merged_df.iloc[0]["Close"] # Initial number of shares
 
+        merged_df["pct_change_price"] = merged_df["Close"].pct_change()
+
         for i in range(1 , len(merged_df)):
 
             previous =  merged_df.iloc[i-1]
             current = merged_df.iloc[i]
 
-            gain = previous["N shares"] * current["Dividends"]
-            new_capital = previous["Capital"] + gain 
+            gain = previous["N shares"] * current["Dividends"] # Gain in dividends
+            new_capital = previous["Capital"] + gain + (current["pct_change_price"] * previous["Close"])
             new_n_shares = previous["N shares"] + (gain / current["Close"]) 
 
 
@@ -179,3 +198,46 @@ class DividendGainCalculator:
             merged_df.iloc[i , merged_df.columns.get_loc("N shares")] = new_n_shares
         
         return merged_df
+    
+
+    # sp500_price:Optional[pd.DataFrame]=None): # Optionnal because we don't use it in the benchmark computation
+
+    # @staticmethod
+    # def get_buy_and_hold_sp500(sp500_price:pd.DataFrame) -> pd.DataFrame:
+
+
+    #     def __compound_interest_sp500(sp500_price_:pd.DataFrame) -> pd.DataFrame:
+
+    #         sp500_price_["pct_change_"] = sp500_price_["Close"].pct_change()
+    #         sp500_price_["Capital"] = 0
+
+    #         sp500_price_.iloc[0 , sp500_price_.columns.get_loc("Capital")] = 100
+
+    #         for i in range(1 , len(sp500_price_)):
+
+    #             current_pct_change = sp500_price_.iloc[i]["pct_change_"]
+    #             previous_capital = sp500_price_.iloc[i-1]["Capital"]
+
+    #             sp500_price_.iloc[i , sp500_price_.columns.get_loc("Capital")] = previous_capital + (previous_capital * current_pct_change)
+    
+    #         return sp500_price_
+
+    #     # Start with current_year - 1
+    #     sp500_price_ = DividendGainCalculator.cut_current_year_values(df=sp500_price)
+
+
+    #     results_by_year = {}
+    #     year:int
+    #     for year in DividendGainCalculator.MINUS_YEARS_TO_COMPUTE:
+    #         right_time_span_sp500 = DividendGainCalculator.subset_over_minus_n_years(minus_n_years=year , 
+    #                                                                                  df=sp500_price_)
+            
+
+    #         sp500_computed = __compound_interest_sp500(right_time_span_sp500)
+            
+    #         gains = sp500_computed.iloc[-1]["Capital"] - sp500_computed.iloc[0]["Capital"]
+
+    #         results_by_year[year] = round(gains)
+
+
+    #     return pd.DataFrame(results_by_year.items() , columns=["Years of investment", "Gains buy and hold SP500"])
