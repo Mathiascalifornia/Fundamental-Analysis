@@ -1,6 +1,5 @@
-from typing import Dict , Union , Tuple , Any
+from typing import Dict , Union , Tuple
 import datetime as dt
-import pickle
 import os 
 
 import pandas as pd 
@@ -8,6 +7,7 @@ import numpy as np
 
 from api_calls import ApiCaller
 from pickle_loader import PickleLoaderAndSaviour
+
 
 class DividendScoreCalculator:
 
@@ -18,7 +18,7 @@ class DividendScoreCalculator:
     STABILITY_SCORE_WEIGHT = 1
     STRIKE_WEIGHT = 0.5
 
-    BENCHMARK_FOLDER = "..\\data\\benchmark_dividends_scores"
+    BENCHMARK_FOLDER = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'data')) # "..\\data\\benchmark_dividends_scores"
 
     pickle_loader = PickleLoaderAndSaviour()
 

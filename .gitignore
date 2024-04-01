@@ -2,3 +2,5 @@
 old_stuff/
 __pycache__/
 fundamental_analysis_env/
+fund_env/
+py-googletrans/
