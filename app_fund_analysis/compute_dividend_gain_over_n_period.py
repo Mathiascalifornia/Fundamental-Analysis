@@ -25,7 +25,7 @@ class DividendGainCalculator:
     # Old companies , highly representative of what we except from a good dividend company
     BENCHMARK_TICKERS = ("KO" , "JNJ" , "XOM" , "MMM" ,  "ITW" , "IBM" , "O" , "PG" , "EPD" , "BLK" , "VZ" , "NWN" , "HD" , "LEG")
     MINUS_YEARS_TO_COMPUTE = (3 , 5 , 10 , 15 , 20)
-    BENCHMARK_FOLDER = "..\\data\\benchmark_backtesting_scores"
+    BENCHMARK_FOLDER =  os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'data' , 'benchmark_backtesting_scores'))
 
     pickle_loader = PickleLoaderAndSaviour()
     api_caller = ApiCaller()

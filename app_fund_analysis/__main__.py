@@ -19,10 +19,11 @@ from compute_dividend_gain_over_n_period import DividendGainCalculator
 warnings.filterwarnings("ignore")
 
 ### Next dev ###
+# - Refactor the code (to many coupling)
 # - Add the mean yield of the last 5 years , and compare it from today's one , as advised by Raphel Carteni
 # - Compute warning signs 
 # - Plot the volume time series
-# - Plot the dividend reinjected company versus SP500
+# - Add possibility to add a competitor
 
 class App:
 
@@ -182,7 +183,9 @@ class App:
                 self.data_viz.plot_dividend_scores(scores_dict=scores_dict_five_years , five_years_back=True)
 
             simulation_result_df = DividendGainCalculator(df_price=self.df_price , df_div=self.df_dividend).main()
-            self.data_viz.plot_simulation_df(simulation_result_df)
+            
+            if len(simulation_result_df) >= 1:
+                self.data_viz.plot_simulation_df(simulation_result_df)
 
 
     def save_presentation(self):
@@ -289,8 +292,8 @@ class App:
             self.table_0 , self.table_1 , self.table_2 , self.table_3 = self.scraping.get_tables()
 
             self.data_viz.plot_dataframes(table_0=self.table_0 , 
-                                          table_0=self.table_1 , 
-                                          table_0=self.table_3)
+                                          table_1=self.table_1 , 
+                                          table_3=self.table_3)
             
             self.worked_dataframe = True
 

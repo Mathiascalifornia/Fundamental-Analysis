@@ -18,7 +18,7 @@ class DividendScoreCalculator:
     STABILITY_SCORE_WEIGHT = 1
     STRIKE_WEIGHT = 0.5
 
-    BENCHMARK_FOLDER = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'data')) # "..\\data\\benchmark_dividends_scores"
+    BENCHMARK_FOLDER = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'data' , 'benchmark_dividends_scores')) # "..\\data\\benchmark_dividends_scores"
 
     pickle_loader = PickleLoaderAndSaviour()
 
