@@ -14,6 +14,7 @@ from matplotlib.dates import MonthLocator, DateFormatter
 import matplotlib.pyplot as plt
 import mplfinance as mpf
 import seaborn as sns 
+import dataframe_image as dsi
 
 
 import yfinance as yf
@@ -698,3 +699,54 @@ class DataViz(PresPPT):
             self.add_picture(picture_filename, labels['title_slide'])
             plt.close('all')
 
+
+
+    def plot_simulation_df(self , results_df:pd.DataFrame):
+
+        def __format_with_percent(x):
+            if isinstance(x, (int, float)):
+                return f'{x} %'
+            else:
+                return x
+     
+        path_to_save = 'data\\revinstvement_df.png'
+
+        results_df["Years of investment"] = results_df["Years of investment"].astype(str) # in order not to apply the transformation
+
+        formatted_data = results_df.applymap(__format_with_percent)
+        formatted_styler = formatted_data.style.highlight_max(subset=["Gains", "Gains benchmark"], color='lightgreen', axis=1)
+
+
+        dsi.export(formatted_styler , path_to_save)
+        
+        to_display_title = 'Simulation de réinvestissement des dividendes' if not self.english else "Dividend Reinvestment Simulation"
+        self.add_picture(path_to_save , to_display_title , left=0.6, top=2.1)
+
+
+    def plot_dataframes(self , 
+                        table_0:pd.DataFrame , 
+                        table_1:pd.DataFrame ,
+                        table_3:pd.DataFrame):
+
+        dsi.export(table_0 , 'data\\df1.png' , table_conversion='matplolib' , fontsize=9)
+        if self.english == False:
+            self.add_picture('data\\df1.png' , 'Tableau 1' , left=0.6 , top=2.1)
+        else:
+            self.add_picture('data\\df1.png' , 'Array 1' , left=0.6, top=2.1)
+        self.plot_element(table_0)
+
+
+        dsi.export(table_1, 'data\\df2.png' , table_conversion='matplolib' , fontsize=12)
+        if self.english == False:
+            self.add_picture('data\\df2.png' , 'Tableau 2' ,  left=0.8, top=2.1)
+        else:
+            self.add_picture('data\\df2.png' , 'Array 2' , left=0.8, top=2.1)
+        self.plot_element(table_1)
+
+
+        dsi.export(table_3 , 'data\\df4.png' , table_conversion='matplolib' , fontsize=11)
+        if self.english == False:
+            self.add_picture('data\\df4.png' , 'Tableau 3' , left=0.7, top=2.1)
+        else:
+            self.add_picture('data\\df4.png' , 'Array 3' , left=0.7, top=2.1)
+        self.plot_element(table_3)

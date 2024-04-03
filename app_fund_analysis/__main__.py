@@ -6,6 +6,7 @@ from googletrans import Translator
 import dataframe_image as dsi
 import textwrap
 import numpy as np 
+import pandas as pd
 
 from scraping import ScrapingSelenium
 from data_viz import DataViz
@@ -13,6 +14,7 @@ from tkinter_windows import MainWindows
 from finance_computation import FinanceComputationner
 from api_calls import ApiCaller
 from dividend_score_calculator import DividendScoreCalculator
+from compute_dividend_gain_over_n_period import DividendGainCalculator
 
 warnings.filterwarnings("ignore")
 
@@ -84,30 +86,6 @@ class App:
             self.data_viz.pres_description(string2 , title='Suite :')
 
 
-    def plot_dataframes(self):
-
-        dsi.export(self.table_0 , 'data\\df1.png' , table_conversion='matplolib' , fontsize=9)
-        if self.english == False:
-            self.data_viz.add_picture('data\\df1.png' , 'Tableau 1' , left=0.6 , top=2.1)
-        else:
-            self.data_viz.add_picture('data\\df1.png' , 'Array 1' , left=0.6, top=2.1)
-        self.data_viz.plot_element(self.table_0)
-
-
-        dsi.export(self.table_1, 'data\\df2.png' , table_conversion='matplolib' , fontsize=12)
-        if self.english == False:
-            self.data_viz.add_picture('data\\df2.png' , 'Tableau 2' ,  left=0.8, top=2.1)
-        else:
-            self.data_viz.add_picture('data\\df2.png' , 'Array 2' , left=0.8, top=2.1)
-        self.data_viz.plot_element(self.table_1)
-
-
-        dsi.export(self.table_3 , 'data\\df4.png' , table_conversion='matplolib' , fontsize=11)
-        if self.english == False:
-            self.data_viz.add_picture('data\\df4.png' , 'Tableau 3' , left=0.7, top=2.1)
-        else:
-            self.data_viz.add_picture('data\\df4.png' , 'Array 3' , left=0.7, top=2.1)
-        self.data_viz.plot_element(self.table_3)
 
 
     def preprocess_and_plot_df3(self):
@@ -202,6 +180,9 @@ class App:
             
             if works_five_years:
                 self.data_viz.plot_dividend_scores(scores_dict=scores_dict_five_years , five_years_back=True)
+
+            simulation_result_df = DividendGainCalculator(df_price=self.df_price , df_div=self.df_dividend).main()
+            self.data_viz.plot_simulation_df(simulation_result_df)
 
 
     def save_presentation(self):
@@ -306,7 +287,11 @@ class App:
         # Get the tables from zone bourse
         try:
             self.table_0 , self.table_1 , self.table_2 , self.table_3 = self.scraping.get_tables()
-            self.plot_dataframes()
+
+            self.data_viz.plot_dataframes(table_0=self.table_0 , 
+                                          table_0=self.table_1 , 
+                                          table_0=self.table_3)
+            
             self.worked_dataframe = True
 
         except Exception as e:

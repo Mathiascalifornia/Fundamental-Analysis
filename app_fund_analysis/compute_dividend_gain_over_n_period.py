@@ -14,6 +14,9 @@ yf.pdr_override()
 from api_calls import ApiCaller
 from pickle_loader import PickleLoaderAndSaviour
 
+
+# Integrate this functionnality in the pipeline , as an array
+
 class DividendGainCalculator:
     """ 
     Compute the gain you would have made by investing in this company n years ago , all dividend reinvested
@@ -45,7 +48,7 @@ class DividendGainCalculator:
 
         results_ticker = results_ticker.dropna()
         results_ticker["Gains"] = results_ticker["Gains"].round().astype(int)
-        
+
         return results_ticker
 
 
