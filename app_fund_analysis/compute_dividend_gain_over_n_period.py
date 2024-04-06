@@ -44,10 +44,11 @@ class DividendGainCalculator:
         results_ticker:pd.DataFrame = self.get_results()
         results_benchmark:pd.DataFrame = DividendGainCalculator.get_benchmark()
 
-        results_ticker["Gains benchmark"] = results_benchmark["Gains benchmark"]
+        results_ticker["P&L benchmark"] = results_benchmark["P&L benchmark"]
+        results_ticker["Dividends Gains benchmark"] = results_benchmark["Dividends Gains"]
 
         results_ticker = results_ticker.dropna()
-        results_ticker["Gains"] = results_ticker["Gains"].round().astype(int)
+        results_ticker["P&L"] = results_ticker["P&L"].round().astype(int)
 
         return results_ticker
 
@@ -76,18 +77,28 @@ class DividendGainCalculator:
                 year:int
                 for year in DividendGainCalculator.MINUS_YEARS_TO_COMPUTE:
 
-                    results_by_year.setdefault(year , [])
+                    results_by_year.setdefault(year , {"P&L" : [] , "Dividends Gains" : []})
 
-                    gain_year = result[result["Years of investment"] == year]["Gains"].values[0]
-                    results_by_year[year].append(gain_year)
+                    gain_year = result[result["Years of investment"] == year]["P&L"].values[0]
+                    dividend_gains = result[result["Years of investment"] == year]["Dividends Gains"].iloc[-1]
+
+                    results_by_year[year]["P&L"].append(gain_year)
+                    results_by_year[year]["Dividends Gains"].append(dividend_gains)
 
             
-            results_by_year = {year : round(np.median(results_by_year[year])) for year in results_by_year.keys()}
-            df_results = pd.DataFrame(results_by_year.items() , columns=["Years of investment", "Gains benchmark"])
+            results_by_year = {year : {"P&L benchmark" : round(np.median(results_by_year[year]["P&L"])) , 
+                                       "Dividends Gains benchmark" : round(np.median(results_by_year[year]["Dividends Gains"]))}
+                                        for year in results_by_year.keys()}
+            
+            # df_results = pd.DataFrame(results_by_year.items() , columns=["Years of investment", "P&L benchmark"])
 
+            final_result_df = pd.DataFrame.from_dict(results_by_year, orient='index')
+            final_result_df["Years of investment"] = final_result_df.index 
+            df_results = final_result_df.reset_index(drop=True)
+        
             DividendGainCalculator.pickle_loader.save_pickle_object(obj=df_results , file_path=path_pickle_results_current_year)
 
-            return df_results # Same format as the results of the 'get_results' method , except the 'Gain' column name
+            return df_results # Same format as the results of the 'get_results' method , except the 'P&L' column name
         
             
 
@@ -125,11 +136,16 @@ class DividendGainCalculator:
                 computed_df = DividendGainCalculator.compute_compound_interest(merged_df=right_range_merged_df)
 
                 total_gains = computed_df.iloc[-1]["Capital"] - computed_df.iloc[0]["Capital"]
-                results[year] = total_gains
+                dividends_gains = computed_df.iloc["Dividends Gains"]
+                results[year] = {"P&L" : total_gains , "Dividends Gains" : dividends_gains}
             else:
                 results[year] = np.nan
 
-        return pd.DataFrame(results.items(), columns=["Years of investment", "Gains"])
+        # return pd.DataFrame(results.items(), columns=["Years of investment", "P&L"])
+
+        final_result_df = pd.DataFrame.from_dict(results, orient='index')
+        final_result_df["Years of investment"] = final_result_df.index 
+        return final_result_df.reset_index(drop=True)
 
    
 
@@ -181,6 +197,7 @@ class DividendGainCalculator:
         # Initialize empty columns to dynamically update them
         merged_df["Capital"] = 0 
         merged_df["N shares"] = 0
+        merged_df["Dividends Gains"] = 0
 
         merged_df.iloc[0 , merged_df.columns.get_loc("Capital")] = initial_capital # Set the initial capital
         merged_df.iloc[0 , merged_df.columns.get_loc("N shares")] = merged_df.iloc[0]["Capital"] / merged_df.iloc[0]["Close"] # Initial number of shares
@@ -195,10 +212,13 @@ class DividendGainCalculator:
             gain = previous["N shares"] * current["Dividends"] # Gain in dividends
             new_capital = previous["Capital"] + gain + (current["pct_change_price"] * previous["Close"])
             new_n_shares = previous["N shares"] + (gain / current["Close"]) 
+            new_gain_in_dividends = previous["Dividends Gains"] + gain
 
 
             merged_df.iloc[i , merged_df.columns.get_loc("Capital")] = new_capital
             merged_df.iloc[i , merged_df.columns.get_loc("N shares")] = new_n_shares
+            merged_df.iloc[i , merged_df.columns.get_loc("Dividends Gains")] = new_gain_in_dividends
+
         
         return merged_df
     

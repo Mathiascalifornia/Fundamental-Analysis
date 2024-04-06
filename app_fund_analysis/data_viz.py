@@ -714,7 +714,8 @@ class DataViz(PresPPT):
         results_df["Years of investment"] = results_df["Years of investment"].astype(str) # in order not to apply the transformation
 
         if not self.english:
-            results_df.columns = ["Années d'investissement" , "Gains" , "Gains benchmark"]
+            results_df.columns = ["Années d'investissement" , "P&L" , "Gains en dividende" , 
+                                  "P&L benchmark" , "Gains en dividende benchmark"]
 
         formatted_data = results_df.applymap(__format_with_percent)
         formatted_styler = formatted_data.style.highlight_max(subset=["Gains", "Gains benchmark"], color='lightgreen', axis=1)
@@ -722,7 +723,9 @@ class DataViz(PresPPT):
 
         dsi.export(formatted_styler , path_to_save)
 
-        to_display_title = 'Simulation de réinvestissement des dividendes' if not self.english else "Dividend Reinvestment Simulation"
+        to_display_title = 'Simulation de réinvestissement des dividendes (sur 100 dollars investis)' \
+            if not self.english else "Dividend Reinvestment Simulation (100 dollars invested)"
+        
         self.add_picture(path_to_save , to_display_title , left=0.6, top=2.1)
 
 

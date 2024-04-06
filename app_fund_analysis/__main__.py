@@ -3,10 +3,8 @@ import datetime as dt
 import warnings
 
 from googletrans import Translator
-import dataframe_image as dsi
 import textwrap
 import numpy as np 
-import pandas as pd
 
 from scraping import ScrapingSelenium
 from data_viz import DataViz
@@ -19,6 +17,8 @@ from compute_dividend_gain_over_n_period import DividendGainCalculator
 warnings.filterwarnings("ignore")
 
 ### Next dev ###
+
+# - Find a way to make the launch_series_of_ticker works again
 # - Refactor the code (to many coupling)
 # - Add the mean yield of the last 5 years , and compare it from today's one , as advised by Raphel Carteni
 # - Compute warning signs 
