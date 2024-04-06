@@ -1,20 +1,21 @@
-import pandas as pd 
+import pandas as pd
 import yfinance as yf
 from pandas_datareader import data
+
 yf.pdr_override()
 
 
 class ApiCaller:
 
     @staticmethod
-    def get_price(ticker:str) -> pd.DataFrame:
+    def get_price(ticker: str) -> pd.DataFrame:
         """
         Get the stock price and other indicators using yahoo finance
         """
-        return data.get_data_yahoo(ticker , start='1975-01-01')
+        return data.get_data_yahoo(ticker, start="1975-01-01")
 
     @staticmethod
-    def get_dividend(ticker:str) -> pd.DataFrame:
+    def get_dividend(ticker: str) -> pd.DataFrame:
         """
         Get the dividend history
         """
@@ -23,10 +24,10 @@ class ApiCaller:
         return to_ret
 
     @staticmethod
-    def get_main_institutions(ticker:str) -> list:
+    def get_main_institutions(ticker: str) -> list:
         """
         Returns the three biggest institutional holders
         """
         data_ = yf.Ticker(str(ticker).upper())
         main_inst = data_.institutional_holders
-        return list(main_inst['Holder'][0 : 3])
+        return list(main_inst["Holder"][0:3])

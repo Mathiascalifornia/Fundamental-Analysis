@@ -1,32 +1,33 @@
 from pptx import Presentation
-from pptx.util import Inches , Pt
+from pptx.util import Inches, Pt
 from pptx.enum.text import PP_ALIGN
 
-import os 
+import os
+
 
 class PresPPT:
 
     def __init__(self):
-        self.pres = Presentation('data\\template.pptx')
+        self.pres = Presentation("data\\template.pptx")
 
     def pres_title(self):
-        '''Create a slide with the title'''
-        layout = self.pres.slide_layouts[0] # Create layout
-        slide = self.pres.slides.add_slide(layout) # Add layout 
-        slide.shapes.title.text = self.title # Add the title
-
+        """Create a slide with the title"""
+        layout = self.pres.slide_layouts[0]  # Create layout
+        slide = self.pres.slides.add_slide(layout)  # Add layout
+        slide.shapes.title.text = self.title  # Add the title
 
     def pres_description(self, string, title):
-        '''Add the texts'''
-    
+        """Add the texts"""
+
         layout = self.pres.slide_layouts[1]
         slide = self.pres.slides.add_slide(layout)
         slide.shapes.title.text = str(title)
-        
-        textbox = slide.shapes.add_textbox(Inches(0.5), Inches(1.75), Inches(8), Inches(1))
+
+        textbox = slide.shapes.add_textbox(
+            Inches(0.5), Inches(1.75), Inches(8), Inches(1)
+        )
         text_frame = textbox.text_frame
         text_frame.text = string
-        
 
         title_shape = slide.shapes.title
 
@@ -34,11 +35,8 @@ class PresPPT:
             for run in paragraph.runs:
                 run.font.size = Pt(25)
 
-        
         for paragraph in text_frame.paragraphs:
             paragraph.alignment = PP_ALIGN.LEFT
-        
-
 
     # def add_picture(self , picture_name , title,  left=1 , top=2):
     #     '''Function to add a picture on the presentation'''
@@ -54,20 +52,19 @@ class PresPPT:
         """
         Function to add a picture on the presentation and automatically center everything
         """
-        
+
         # Get the current slide layout
         layout = self.pres.slide_layouts[1]  # Both title and content
-        
+
         # Add a new slide with the current layout
         slide = self.pres.slides.add_slide(layout)
-    
-        
+
         # Add the image to the slide
         pic = slide.shapes.add_picture(picture_name, 0, 0)
-        
+
         # Center the image horizontally
         pic.left = int((self.pres.slide_width - pic.width) / 2)
-        
+
         # Center the image vertically
         pic.top = int((self.pres.slide_height - pic.height) / 2)
 
@@ -81,7 +78,6 @@ class PresPPT:
         for paragraph in title_shape.text_frame.paragraphs:
             for run in paragraph.runs:
                 run.font.size = Pt(25)
-
 
         # Remove the image file after adding
         os.remove(picture_name)

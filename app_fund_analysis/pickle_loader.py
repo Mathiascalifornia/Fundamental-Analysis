@@ -1,6 +1,7 @@
 import pickle
 from typing import Any
 
+
 class PickleLoaderAndSaviour:
 
     @staticmethod
@@ -8,7 +9,7 @@ class PickleLoaderAndSaviour:
         """
         Load an object from a pickle file
         """
-        with open(file_path, 'rb') as file:
+        with open(file_path, "rb") as file:
             return pickle.load(file)
 
     @staticmethod
@@ -16,5 +17,5 @@ class PickleLoaderAndSaviour:
         """
         Save an object to a pickle file
         """
-        with open(file_path, 'wb') as file:
+        with open(file_path, "wb") as file:
             pickle.dump(obj, file)
