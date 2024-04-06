@@ -42,13 +42,19 @@ class DividendGainCalculator:
     def main(self) -> pd.DataFrame:
         
         results_ticker:pd.DataFrame = self.get_results()
+
+
+        results_ticker = results_ticker[["Years of investment" , "P&L" , "Dividends Gains"]]
+
         results_benchmark:pd.DataFrame = DividendGainCalculator.get_benchmark()
+        results_benchmark = results_benchmark[["Years of investment" , "P&L benchmark" , "Dividends Gains benchmark"]]
+
 
         results_ticker["P&L benchmark"] = results_benchmark["P&L benchmark"]
-        results_ticker["Dividends Gains benchmark"] = results_benchmark["Dividends Gains"]
+        results_ticker["Dividends Gains benchmark"] = results_benchmark["Dividends Gains benchmark"]
 
         results_ticker = results_ticker.dropna()
-        results_ticker["P&L"] = results_ticker["P&L"].round().astype(int)
+        results_ticker = results_ticker.astype(int)
 
         return results_ticker
 
@@ -136,7 +142,7 @@ class DividendGainCalculator:
                 computed_df = DividendGainCalculator.compute_compound_interest(merged_df=right_range_merged_df)
 
                 total_gains = computed_df.iloc[-1]["Capital"] - computed_df.iloc[0]["Capital"]
-                dividends_gains = computed_df.iloc["Dividends Gains"]
+                dividends_gains = computed_df.iloc[-1]["Dividends Gains"]
                 results[year] = {"P&L" : total_gains , "Dividends Gains" : dividends_gains}
             else:
                 results[year] = np.nan

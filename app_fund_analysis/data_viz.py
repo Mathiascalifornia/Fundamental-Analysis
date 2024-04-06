@@ -703,25 +703,29 @@ class DataViz(PresPPT):
 
     def plot_simulation_df(self , results_df:pd.DataFrame):
 
-        def __format_with_percent(x):
-            if isinstance(x, (int, float)):
-                return f'{x} %'
-            else:
-                return x
+        # def __format_with_percent(x):
+        #     if isinstance(x, (int, float)):
+        #         return f'{x} %'
+        #     else:
+        #         return x
      
         path_to_save = 'data\\revinstvement_df.png'
 
-        results_df["Years of investment"] = results_df["Years of investment"].astype(str) # in order not to apply the transformation
+        # # in order not to apply the percentage transformation
+        # results_df["Years of investment"] = results_df["Years of investment"].astype(str)
+        # results_df["Gains en dividende"] = results_df["Gains en dividende"].astype(str)
+        # results_df["Gains en dividende benchmark"] = results_df["Gains en dividende benchmark"].astype(str)
 
         if not self.english:
             results_df.columns = ["Années d'investissement" , "P&L" , "Gains en dividende" , 
                                   "P&L benchmark" , "Gains en dividende benchmark"]
-
-        formatted_data = results_df.applymap(__format_with_percent)
-        formatted_styler = formatted_data.style.highlight_max(subset=["Gains", "Gains benchmark"], color='lightgreen', axis=1)
+            
+        formatted_styler = results_df.style.highlight_max(subset=["P&L", "P&L benchmark"], 
+                                                          color='lightgreen', axis=1)
 
 
         dsi.export(formatted_styler , path_to_save)
+
 
         to_display_title = 'Simulation de réinvestissement des dividendes (sur 100 dollars investis)' \
             if not self.english else "Dividend Reinvestment Simulation (100 dollars invested)"
