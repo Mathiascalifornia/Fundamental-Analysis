@@ -117,7 +117,7 @@ class DividendGainCalculator:
                     gain_year = result[result["Years of investment"] == year][
                         "P&L"
                     ].values[0]
-                    
+
                     dividend_gains = result[result["Years of investment"] == year][
                         "Dividends Gains"
                     ].iloc[-1]
@@ -161,7 +161,6 @@ class DividendGainCalculator:
 
     @staticmethod
     def get_yearly_gains(merged_df: pd.DataFrame) -> pd.DataFrame:
-
         def __check_enought_time_horizon(
             merged_df: pd.DataFrame, minus_n_years: int
         ) -> bool:
@@ -194,7 +193,7 @@ class DividendGainCalculator:
                 dividends_gains = computed_df.iloc[-1]["Dividends Gains"]
                 results[year] = {"P&L": total_gains, "Dividends Gains": dividends_gains}
             else:
-                results[year] = np.nan
+                results[year] = {"P&L": np.nan, "Dividends Gains": np.nan}
 
         # return pd.DataFrame(results.items(), columns=["Years of investment", "P&L"])
 
@@ -254,9 +253,9 @@ class DividendGainCalculator:
         merged_df["N shares"] = 0
         merged_df["Dividends Gains"] = 0
 
-        merged_df.iloc[0, merged_df.columns.get_loc("Capital")] = (
-            initial_capital  # Set the initial capital
-        )
+        merged_df.iloc[
+            0, merged_df.columns.get_loc("Capital")
+        ] = initial_capital  # Set the initial capital
         merged_df.iloc[0, merged_df.columns.get_loc("N shares")] = (
             merged_df.iloc[0]["Capital"] / merged_df.iloc[0]["Close"]
         )  # Initial number of shares
@@ -279,9 +278,9 @@ class DividendGainCalculator:
 
             merged_df.iloc[i, merged_df.columns.get_loc("Capital")] = new_capital
             merged_df.iloc[i, merged_df.columns.get_loc("N shares")] = new_n_shares
-            merged_df.iloc[i, merged_df.columns.get_loc("Dividends Gains")] = (
-                new_gain_in_dividends
-            )
+            merged_df.iloc[
+                i, merged_df.columns.get_loc("Dividends Gains")
+            ] = new_gain_in_dividends
 
         return merged_df
 

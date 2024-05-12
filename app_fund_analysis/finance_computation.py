@@ -5,7 +5,6 @@ import numpy as np
 
 
 class FinanceComputationner:
-
     def annualized_return(self, df: pd.DataFrame):
         """Get the mean annualized return"""
         df_ = df.copy()

@@ -2,7 +2,6 @@ from tkinter import Tk, Label, Entry, ttk, Button
 
 
 class MainWindows:
-
     def main(self, App):
 
         root = Tk()

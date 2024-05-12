@@ -3,7 +3,6 @@ from typing import Any
 
 
 class PickleLoaderAndSaviour:
-
     @staticmethod
     def load_pickle_object(file_path) -> Any:
         """

@@ -4,11 +4,17 @@ from pptx.enum.text import PP_ALIGN
 
 import os
 
+path_template = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data")
+
 
 class PresPPT:
 
+    data_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data")
+
     def __init__(self):
-        self.pres = Presentation("data\\template.pptx")
+
+        path_template = os.path.join(PresPPT.data_path, "template.pptx")
+        self.pres = Presentation(path_template)
 
     def pres_title(self):
         """Create a slide with the title"""

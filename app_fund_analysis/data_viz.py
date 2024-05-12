@@ -1,8 +1,10 @@
+import os
+import re
+import datetime as dt
+
 # Data manipulation
 import pandas as pd
 import numpy as np
-import re
-import datetime as dt
 from statsmodels.tsa.seasonal import seasonal_decompose
 from sklearn.preprocessing import MinMaxScaler
 
@@ -27,7 +29,6 @@ from pres import PresPPT
 
 
 class DataViz(PresPPT):
-
     def __init__(self, **kwargs):
 
         self.__dict__.update(kwargs)
@@ -49,27 +50,34 @@ class DataViz(PresPPT):
             sns.set_style("darkgrid")
             index = list(df.index)
             for i in range(len(index)):
+
                 plt.figure(figsize=(8, 5))
                 d = df.iloc[i]
+
                 if (
                     d.isna().sum() / len(d)
                 ) < 0.5:  # if there is less than 50 per cent of nulls
+
                     d = d.fillna(method="pad")
                     d.index = pd.to_datetime(d.index).year
                     preds = d[d.index > self.limit_year]
                     plt.plot(d, color="red")
                     plt.plot(preds, linestyle="--", color="white", label="Predictions")
                     plt.legend()
-                    plt.savefig("data\\fig{i}.png")
+
+                    path_fig = os.path.join(super().data_path, "fig{i}.png")
+
+                    plt.savefig(path_fig)
+
                     plt.close("all")
+
                     if self.english:
-                        self.add_picture(
-                            "data\\fig{i}.png", self.t(index[i]), left=1.1, top=1.9
-                        )
+
+                        self.add_picture(path_fig, self.t(index[i]), left=1.1, top=1.9)
+
                     else:
-                        self.add_picture(
-                            "data\\fig{i}.png", index[i], left=1.1, top=1.9
-                        )
+
+                        self.add_picture(path_fig, index[i], left=1.1, top=1.9)
 
     def plot_sentiment_score(self, scores):
         with sns.plotting_context("talk"):
@@ -82,16 +90,18 @@ class DataViz(PresPPT):
                 edgecolor="black",
             )
             plt.xlabel("")
-            plt.savefig("data\\sentiment.png")
+
+            sentiment_fig_path = os.path.join(self.data_path, "sentiment.png")
+            plt.savefig(sentiment_fig_path)
             plt.close("all")
             if self.english == False:
                 self.add_picture(
-                    "data\\sentiment.png",
+                    sentiment_fig_path,
                     "Analyse de sentiment du marché, basée sur les titres d'actualités.",
                 )
             else:
                 self.add_picture(
-                    "data\\sentiment.png",
+                    sentiment_fig_path,
                     self.t(
                         "Analyse de sentiment du marché , basée sur les titres d'actualités."
                     ),
@@ -121,24 +131,21 @@ class DataViz(PresPPT):
             plt.figure(figsize=(8, 5))
             plt.plot(X, y, color="blue")
             plt.plot(x_line, y_line, color="red")
-            plt.savefig("data\\linear_regression.png")
+
+            linear_reg_path = os.path.join(super().data_path, "linear_regression.png")
+
+            plt.savefig(linear_reg_path)
             plt.close("all")
             if self.english:
                 if not five_years_back:
-                    self.add_picture("data\\linear_regression.png", "Linear regression")
+                    self.add_picture(linear_reg_path, "Linear regression")
                 if five_years_back:
-                    self.add_picture(
-                        "data\\linear_regression.png", "Linear regression five years"
-                    )
+                    self.add_picture(linear_reg_path, "Linear regression five years")
             else:
                 if not five_years_back:
-                    self.add_picture(
-                        "data\\linear_regression.png", "Régression linéaire"
-                    )
+                    self.add_picture(linear_reg_path, "Régression linéaire")
                 if five_years_back:
-                    self.add_picture(
-                        "data\\linear_regression.png", "Régression linéaire (5 ans)"
-                    )
+                    self.add_picture(linear_reg_path, "Régression linéaire (5 ans)")
 
     def plot_maximum_draw_down(self, df: pd.DataFrame):
         """Plot the maximum drow down , which is a measure of an asset's largest price drop from a peak to a trough"""
@@ -173,15 +180,15 @@ class DataViz(PresPPT):
                 label="Maximum daily drawdown in time-window",
                 color="red",
             )
-            plt.savefig("data\\maximum_draw_down.png")
+
+            max_draw = os.path.join(super().data_path, "Maximum_loss.png")
+            plt.savefig(max_draw)
             plt.legend()
             plt.close("all")
             if self.english:
-                self.add_picture("data\\maximum_draw_down.png", "Maximum loss")
+                self.add_picture(max_draw, "Maximum_loss.png")
             else:
-                self.add_picture(
-                    "data\\maximum_draw_down.png", "Perte de valeur maximum"
-                )
+                self.add_picture(max_draw, "Perte de valeur maximum")
 
     def price_with_dividends(self, df_price, df_dividend_):
         """Plot the stock price with the dividends payed over time"""
@@ -192,20 +199,24 @@ class DataViz(PresPPT):
             ["High", "Low", "Open", "Close", "Volume"], axis=1, errors="ignore"
         )
         with sns.plotting_context("notebook"):
-            sns.set_style("dark")
+
             fig, ax = plt.subplots(figsize=(8, 5))
             ax.plot(df_.index, df_.values, label="Stock price")
             plt.legend(loc="upper left")
             ax.twinx().plot(__div.index, __div.values, color="red", label="Dividend")
             plt.legend(loc="center left")
-            plt.savefig("data\\price_with_dividends.png")
+            plt.savefig(os.path.join(super().data_path, "price_and_dividends.png"))
             plt.close("all")
             if self.english:
                 self.add_picture(
-                    "data\\price_with_dividends.png", "Price and dividends"
+                    os.path.join(super().data_path, "price_and_dividends.png"),
+                    "Price and dividends",
                 )
             else:
-                self.add_picture("data\\price_with_dividends.png", "Prix et dividendes")
+                self.add_picture(
+                    os.path.join(super().data_path, "price_and_dividends.png"),
+                    "Prix et dividendes",
+                )
 
     def annual_dividend_history(self):
         """Group the dividend per year to see the annual dividend history"""
@@ -223,15 +234,16 @@ class DataViz(PresPPT):
             plt.ylabel("Montant")
             plt.xlabel("Année")
             plt.xticks(rotation=90)
-            plt.savefig("data\\annual_dividend.png")
+            plt.savefig(os.path.join(super().data_path, "annual_dividend.png"))
             plt.close("all")
             if self.english:
                 self.add_picture(
-                    "data\\annual_dividend.png", "Dividend per year and per share"
+                    os.path.join(super().data_path, "annual_dividend.png"),
+                    "Dividend per year and per share",
                 )
             else:
                 self.add_picture(
-                    "data\\annual_dividend.png",
+                    os.path.join(super().data_path, "annual_dividend.png"),
                     "Dividende versé par année et par action",
                 )
 
@@ -254,18 +266,31 @@ class DataViz(PresPPT):
             plt.plot(
                 d_.index, d_["payout"].apply(lambda x: round(x * 100)), color="red"
             )
-            plt.savefig("data\\payout.png")
+            plt.savefig(os.path.join(super().data_path, "payout.png"))
             plt.close("all")
             if self.english:
-                self.add_picture("data\\payout.png", "Pay out ratio")
+                self.add_picture(
+                    os.path.join(super().data_path, "payout.png"), "Pay out ratio"
+                )
             else:
-                self.add_picture("data\\payout.png", "Taux de distribution")
+                self.add_picture(
+                    os.path.join(super().data_path, "payout.png"),
+                    "Taux de distribution",
+                )
 
-    def plot_against_benmark(self):
+    def plot_against_benmark(self, five_years=False):
         """Plot the normalized data against a benchmark (the sp500)"""
 
         df_ = self.df_price.copy()
+        df_ = df_[df_.index[-1] - dt.timedelta(days=365 * 5) :] if five_years else df_
+
         bench_ = self.sp500_price.copy()
+        bench_ = (
+            bench_[bench_.index[-1] - dt.timedelta(days=365 * 5) :]
+            if five_years
+            else bench_
+        )
+
         df_["normalized"] = MinMaxScaler().fit_transform(
             df_["Adj Close"].values.reshape(-1, 1)
         )
@@ -279,17 +304,24 @@ class DataViz(PresPPT):
             plt.plot(df_.index, df_["normalized"], color="blue", label=self.ticker)
             plt.plot(bench_.index, bench_["normalized"], label="SP500", color="red")
             plt.legend()
-            plt.savefig("data\\bench.png")
+            plt.savefig(os.path.join(super().data_path, "bench.png"))
             plt.close("all")
             if self.english:
+                title = f"Normalized stocks price :{self.ticker} vs SP500"
+                if five_years:
+                    title += " 5 years"
+
                 self.add_picture(
-                    "data\\bench.png",
-                    f"Normalized stocks price :{self.ticker} vs SP500",
+                    os.path.join(super().data_path, "bench.png"),
+                    title,
                 )
-            else:
+            if not self.english:
+                title = f"Prix de l'action normalisé {self.ticker} vs SP500"
+                if five_years:
+                    title += " 5 ans"
                 self.add_picture(
-                    "data\\bench.png",
-                    f"Prix de l'action normalisé {self.ticker} vs SP500",
+                    os.path.join(super().data_path, "bench.png"),
+                    title,
                 )
 
     def cap_vs_debt(self, table_3):
@@ -349,10 +381,11 @@ class DataViz(PresPPT):
                         color="white",
                     )
                     plt.legend()
-                    plt.savefig("data\\cap_versus_debt.png")
+                    plt.savefig(os.path.join(super().data_path, "cap_versus_debt.png"))
                     plt.close("all")
                     self.add_picture(
-                        "data\\cap_versus_debt.png", "Capitaux propres vs Dette net"
+                        os.path.join(super().data_path, "cap_versus_debt.png"),
+                        "Capitaux propres vs Dette net",
                     )
                 else:
                     plt.plot(new_df["year"], new_df["debt"], color="red", label="Debt")
@@ -373,16 +406,19 @@ class DataViz(PresPPT):
                         color="white",
                     )
                     plt.legend()
-                    plt.savefig("data\\cap_versus_debt.png")
+                    plt.savefig(os.path.join(super().data_path, "cap_versus_debt.png"))
                     plt.close("all")
-                    self.add_picture("data\\cap_versus_debt.png", "Equity versus debt")
+                    self.add_picture(
+                        os.path.join(super().data_path, "cap_versus_debt.png"),
+                        "Equity versus debt",
+                    )
 
     def shareholders(self):
         """Plot a pie plot of the three biggest institutions shareholders"""
         data_ = yf.Ticker(str(self.ticker).upper())
 
         pct = (
-            data_.major_holders.iloc[:-2][0]
+            data_.major_holders.iloc[:-2]["Breakdown"]
             .apply(lambda x: x.replace("%", ""))
             .astype(float)
         )
@@ -418,7 +454,7 @@ class DataViz(PresPPT):
             explode=explode,
         )
         plt.legend(labels)
-        plt.savefig("data\\shareholders.png")
+        plt.savefig(os.path.join(super().data_path, "shareholders.png"))
         plt.close("all")
 
         title = (
@@ -426,7 +462,12 @@ class DataViz(PresPPT):
             if not self.english
             else "Investor distribution"
         )
-        self.add_picture("data\\shareholders.png", title, left=2.4, top=1.5)
+        self.add_picture(
+            os.path.join(super().data_path, "shareholders.png"),
+            title,
+            left=2.4,
+            top=1.5,
+        )
 
     def plot_rsi(self):
         """Plot the Relative Strenght Index"""
@@ -436,10 +477,13 @@ class DataViz(PresPPT):
         plt.plot(self.df_price["RSI"][start:])
         plt.axhline(y=70, color="red", linestyle="--")
         plt.axhline(y=30, color="green", linestyle="--")
-        plt.savefig("data\\rsi.png")
+        plt.savefig(os.path.join(super().data_path, "rsi.png"))
         plt.close("all")
         self.add_picture(
-            "data\\rsi.png", "Relative Strength Index (RSI)", left=0, top=2.5
+            os.path.join(super().data_path, "rsi.png"),
+            "Relative Strength Index (RSI)",
+            left=0,
+            top=2.5,
         )
 
     def plot_zoom_candles(self):
@@ -459,15 +503,21 @@ class DataViz(PresPPT):
             style=style,
             figsize=(9, 6),
             volume=True,
-            savefig="data\\Zoom.png",
+            savefig=os.path.join(super().data_path, "Zoom.png"),
         )
         if self.english == False:
             self.add_picture(
-                "data\\Zoom.png", "Zoom des six derniers mois", left=0.05, top=1.5
+                os.path.join(super().data_path, "Zoom.png"),
+                "Zoom des six derniers mois",
+                left=0.05,
+                top=1.5,
             )
         else:
             self.add_picture(
-                "data\\Zoom.png", "Last six months zoom", left=0.05, top=1.5
+                os.path.join(super().data_path, "Zoom.png"),
+                "Last six months zoom",
+                left=0.05,
+                top=1.5,
             )
 
     def plot_multiple_indicators(
@@ -550,7 +600,7 @@ class DataViz(PresPPT):
         multiplier = 0
 
         with sns.plotting_context("notebook"):
-            sns.set_style("dark")
+
             fig, ax = plt.subplots(layout="constrained", figsize=(9, 5))
             for attribute, measurement in vals_.items():
                 offset = width * multiplier
@@ -630,32 +680,32 @@ class DataViz(PresPPT):
                 edgecolor="black",
             )
 
-            plt.savefig("data\\plot_multiple_indicator.png")
+            plt.savefig(os.path.join(super().data_path, "plot_multiple_indicator.png"))
             plt.close("all")
 
             if self.english == False:
                 if not quaterly:
                     self.add_picture(
-                        "data\\plot_multiple_indicator.png",
+                        os.path.join(super().data_path, "plot_multiple_indicator.png"),
                         "Évolution du compte de résultat annuel",
                         left=0.8,
                     )
                 if quaterly:
                     self.add_picture(
-                        "data\\plot_multiple_indicator.png",
+                        os.path.join(super().data_path, "plot_multiple_indicator.png"),
                         "Évolution du compte de résultat trimestrielle",
                         left=0.8,
                     )
             else:
                 if not quaterly:
                     self.add_picture(
-                        "data\\plot_multiple_indicator.png",
+                        os.path.join(super().data_path, "plot_multiple_indicator.png"),
                         "Evolution of the annual income statement",
                         left=0.8,
                     )
                 if quaterly:
                     self.add_picture(
-                        "data\\plot_multiple_indicator.png",
+                        os.path.join(super().data_path, "plot_multiple_indicator.png"),
                         "Evolution of the quarterly income statement",
                         left=0.8,
                     )
@@ -773,18 +823,18 @@ class DataViz(PresPPT):
                 ],
             )
             plt.legend(edgecolor="black")
-            plt.savefig("data\\correlations.png")
+            plt.savefig(os.path.join(super().data_path, "correlations.png"))
             plt.close("all")
 
             if self.english == False:
                 self.add_picture(
-                    "data\\correlations.png",
+                    os.path.join(super().data_path, "correlations.png"),
                     "Corrélations entre différents indices et indicateurs",
                     left=0.5,
                 )
             else:
                 self.add_picture(
-                    "data\\correlations.png",
+                    os.path.join(super().data_path, "correlations.png"),
                     "Correlations between various indexes and indicators",
                     left=0.5,
                 )
@@ -824,18 +874,18 @@ class DataViz(PresPPT):
         plt.xlabel("Date")
         plt.tight_layout()
 
-        plt.savefig("data\\seasonality.png")
+        plt.savefig(os.path.join(super().data_path, "seasonality.png"))
         plt.close("all")
 
         if self.english:
             self.add_picture(
-                "data\\seasonality.png",
+                os.path.join(super().data_path, "seasonality.png"),
                 "Breakdown of annual seasonality within the last years",
                 left=0.5,
             )
         else:
             self.add_picture(
-                "data\\seasonality.png",
+                os.path.join(super().data_path, "seasonality.png"),
                 "Décomposition de la saisonnalité annuelle au cours des dernières années",
                 left=0.5,
             )
@@ -871,16 +921,16 @@ class DataViz(PresPPT):
                 f"Max: {round(max_,2)}% | Mean: {round(mean_,2)}% | Median: {round(median_,2)}% | Min: {round(min_,2)}%"
             )
 
-            plt.savefig("data\\price_with_dividends.png")
+            plt.savefig(os.path.join(super().data_path, "price_and_dividends.png"))
             plt.close("all")
             if self.english:
                 self.add_picture(
-                    "data\\price_with_dividends.png",
+                    os.path.join(super().data_path, "price_and_dividends.png"),
                     "Dividend percentage changes statistics by year",
                 )
             else:
                 self.add_picture(
-                    "data\\price_with_dividends.png",
+                    os.path.join(super().data_path, "price_and_dividends.png"),
                     "Statistiques de pourcentage de changement du dividende par année",
                 )
 
@@ -919,16 +969,16 @@ class DataViz(PresPPT):
                 f"Max: {round(max_,2)}% | Mean: {round(mean_,2)}% | Median: {round(median_,2)}% | Min: {round(min_,2)}%"
             )
 
-            plt.savefig("data\\price_with_dividends.png")
+            plt.savefig(os.path.join(super().data_path, "price_and_dividends.png"))
             plt.close("all")
             if self.english:
                 self.add_picture(
-                    "data\\price_with_dividends.png",
+                    os.path.join(super().data_path, "price_and_dividends.png"),
                     "Dividend percentage changes statistics by year (5 years)",
                 )
             else:
                 self.add_picture(
-                    "data\\price_with_dividends.png",
+                    os.path.join(super().data_path, "price_and_dividends.png"),
                     "Statistiques de pourcentage de changement du dividende par année (5 ans)",
                 )
 
@@ -945,7 +995,9 @@ class DataViz(PresPPT):
             time_serie = time_serie[
                 time_serie["year"].astype(int) >= (dt.datetime.now().year - 5)
             ]
-            time_serie["year"] = time_serie["year"].astype(str)
+
+            # time_serie["year"] = time_serie["year"].apply(lambda x : str(int(x)) if not pd.isna(x) else x)
+            time_serie["year"] = time_serie["year"].astype(int)
 
         with sns.plotting_context("talk"):
             plt.figure(figsize=(8, 5))
@@ -974,10 +1026,18 @@ class DataViz(PresPPT):
             plt.ylabel(labels["ylabel"])
             plt.grid(True)
 
+            # Adjusting x-axis ticks
+            plt.xticks(
+                rotation=45, fontsize=8
+            )  # Rotate the x-axis labels by 45 degrees
+            plt.xticks(
+                np.arange(min(time_serie["year"]), max(time_serie["year"]) + 1, step=2)
+            )  # Show every 2nd year
+
             filename = (
-                "data\\time_serie_yield.png"
+                os.path.join(super().data_path, "time_serie_yield.png")
                 if not last_five_years
-                else "data\\time_serie_yield_five_years.png"
+                else os.path.join(super().data_path, "time_serie_yield_five_years.png")
             )
             plt.savefig(filename)
             plt.close("all")
@@ -1095,9 +1155,9 @@ class DataViz(PresPPT):
             )
 
             picture_filename = (
-                "data\\dividend_scores.png"
+                os.path.join(super().data_path, "dividend_scores.png")
                 if not five_years_back
-                else "data\\dividend_scores_five_years.png"
+                else os.path.join(super().data_path, "dividend_scores_five_years.png")
             )
             plt.savefig(picture_filename)
 
@@ -1112,7 +1172,7 @@ class DataViz(PresPPT):
         #     else:
         #         return x
 
-        path_to_save = "data\\revinstvement_df.png"
+        path_to_save = os.path.join(super().data_path, "revinstvement_df.png")
 
         # # in order not to apply the percentage transformation
         # results_df["Years of investment"] = results_df["Years of investment"].astype(str)
@@ -1146,23 +1206,59 @@ class DataViz(PresPPT):
         self, table_0: pd.DataFrame, table_1: pd.DataFrame, table_3: pd.DataFrame
     ):
 
-        dsi.export(table_0, "data\\df1.png", table_conversion="matplolib", fontsize=9)
+        dsi.export(
+            table_0,
+            os.path.join(super().data_path, "df1.png"),
+            table_conversion="matplolib",
+            fontsize=9,
+        )
         if self.english == False:
-            self.add_picture("data\\df1.png", "Tableau 1", left=0.6, top=2.1)
+            self.add_picture(
+                os.path.join(super().data_path, "df1.png"),
+                "Tableau 1",
+                left=0.6,
+                top=2.1,
+            )
         else:
-            self.add_picture("data\\df1.png", "Array 1", left=0.6, top=2.1)
+            self.add_picture(
+                os.path.join(super().data_path, "df1.png"), "Array 1", left=0.6, top=2.1
+            )
         self.plot_element(table_0)
 
-        dsi.export(table_1, "data\\df2.png", table_conversion="matplolib", fontsize=12)
+        dsi.export(
+            table_1,
+            os.path.join(super().data_path, "df2.png"),
+            table_conversion="matplolib",
+            fontsize=12,
+        )
         if self.english == False:
-            self.add_picture("data\\df2.png", "Tableau 2", left=0.8, top=2.1)
+            self.add_picture(
+                os.path.join(super().data_path, "df2.png"),
+                "Tableau 2",
+                left=0.8,
+                top=2.1,
+            )
         else:
-            self.add_picture("data\\df2.png", "Array 2", left=0.8, top=2.1)
+            self.add_picture(
+                os.path.join(super().data_path, "df2.png"), "Array 2", left=0.8, top=2.1
+            )
         self.plot_element(table_1)
 
-        dsi.export(table_3, "data\\df4.png", table_conversion="matplolib", fontsize=11)
+        dsi.export(
+            table_3,
+            os.path.join(super().data_path, "df4.png"),
+            table_conversion="matplolib",
+            fontsize=11,
+        )
         if self.english == False:
-            self.add_picture("data\\df4.png", "Tableau 3", left=0.7, top=2.1)
+            self.add_picture(
+                os.path.join(super().data_path, "df4.png"),
+                "Tableau 3",
+                left=0.7,
+                top=2.1,
+            )
         else:
-            self.add_picture("data\\df4.png", "Array 3", left=0.7, top=2.1)
+            self.add_picture(
+                os.path.join(super().data_path, "df4.png"), "Array 3", left=0.7, top=2.1
+            )
         self.plot_element(table_3)
