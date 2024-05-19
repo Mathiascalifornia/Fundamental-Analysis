@@ -56,9 +56,13 @@ class DividendGainCalculator:
     def main(self) -> pd.DataFrame:
 
         if os.path.exists(DividendGainCalculator.PATH_FOREX_CSV):
-            self.forex_df = pd.read_csv(DividendGainCalculator.PATH_FOREX_CSV)
+            self.forex_df: pd.DataFrame = pd.read_csv(
+                DividendGainCalculator.PATH_FOREX_CSV, index_col="Date"
+            )
         else:
-            self.forex_df = DividendGainCalculator.api_caller.create_forex_exchange_df()
+            self.forex_df: pd.DataFrame = (
+                DividendGainCalculator.api_caller.create_forex_exchange_df()
+            )
 
         results_ticker: pd.DataFrame = self.get_results()
 
@@ -184,10 +188,12 @@ class DividendGainCalculator:
             )
 
             unique_values_curr = list(merged_df[currency])
-            if any(not val for val in unique_values_curr):
+            if any(not val for val in unique_values_curr) or merged_df.empty:
                 raise ValueError(
                     "Some bad values are present for the forex rates of this currency. Skipping the simulation"
                 )
+
+            merged_df["Close"] = merged_df["Close"] * merged_df[currency]
 
         return self.get_yearly_gains(merged_df=merged_df)
 
