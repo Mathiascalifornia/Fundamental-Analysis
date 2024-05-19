@@ -14,7 +14,7 @@ yf.pdr_override()
 
 from api_calls import ApiCaller
 from pickle_loader import PickleLoaderAndSaviour
-
+import config
 
 # Integrate this functionnality in the pipeline , as an array
 
@@ -24,23 +24,10 @@ class DividendGainCalculator:
     Compute the gain you would have made by investing in this company n years ago , all dividend reinvested
     """
 
+    TICKER_SUFFIX_CURRENCY = config.ticker_suffix_to_currency
+
     # Old companies , highly representative of what we except from a good dividend company
-    BENCHMARK_TICKERS = (
-        "KO",
-        "JNJ",
-        "XOM",
-        "MMM",
-        "ITW",
-        "IBM",
-        "O",
-        "PG",
-        "EPD",
-        "BLK",
-        "VZ",
-        "NWN",
-        "HD",
-        "LEG",
-    )
+    BENCHMARK_TICKERS = config.BENCHMARK_TICKERS
     MINUS_YEARS_TO_COMPUTE = (3, 5, 10, 15, 20)
     BENCHMARK_FOLDER = os.path.abspath(
         os.path.join(
@@ -48,15 +35,30 @@ class DividendGainCalculator:
         )
     )
 
+    PATH_FOREX_CSV = os.path.abspath(
+        os.path.join(
+            os.path.dirname(__file__),
+            "..",
+            f"data",
+            "historical_forex_{}.csv".format(datetime.datetime.now().year),
+        )
+    )
+
     pickle_loader = PickleLoaderAndSaviour()
     api_caller = ApiCaller()
 
-    def __init__(self, df_price: pd.DataFrame, df_div: pd.DataFrame):
+    def __init__(self, df_price: pd.DataFrame, df_div: pd.DataFrame, ticker: str):
 
         self.df_price = df_price
         self.df_div = df_div
+        self.ticker = ticker
 
     def main(self) -> pd.DataFrame:
+
+        if os.path.exists(DividendGainCalculator.PATH_FOREX_CSV):
+            self.forex_df = pd.read_csv(DividendGainCalculator.PATH_FOREX_CSV)
+        else:
+            self.forex_df = DividendGainCalculator.api_caller.create_forex_exchange_df()
 
         results_ticker: pd.DataFrame = self.get_results()
 
@@ -78,6 +80,18 @@ class DividendGainCalculator:
         results_ticker = results_ticker.astype(int)
 
         return results_ticker
+
+    @staticmethod
+    def detect_currency(ticker: str, dict_equivalence: dict) -> str:
+
+        """
+        To adapt the currency to the computations
+        """
+        if "." in ticker:
+            exchange = ticker.split(".")[-1]
+            return dict_equivalence.get(exchange, None)
+
+        return "USD"
 
     @classmethod
     def get_benchmark(cls):
@@ -149,13 +163,31 @@ class DividendGainCalculator:
 
     def get_results(self) -> pd.DataFrame:
 
-        merged_df: pd.DataFrame
-        merged_df = self.merge_price_and_div_df(
+        merged_df: pd.DataFrame = self.merge_price_and_div_df(
             df_price=self.df_price, df_div=self.df_div
         )
 
         # Set the dataframe in the correct time span
         merged_df = self.cut_current_year_values(df=merged_df)
+
+        currency = self.detect_currency(
+            ticker=self.ticker, dict_equivalence=self.TICKER_SUFFIX_CURRENCY
+        )
+        if not currency:
+            raise ValueError(
+                "Some bad values are present for the forex rates of this currency. Skipping the simulation"
+            )
+
+        if currency != "USD":
+            merged_df = pd.merge(
+                merged_df, self.forex_df, left_index=True, right_index=True, how="inner"
+            )
+
+            unique_values_curr = list(merged_df[currency])
+            if any(not val for val in unique_values_curr):
+                raise ValueError(
+                    "Some bad values are present for the forex rates of this currency. Skipping the simulation"
+                )
 
         return self.get_yearly_gains(merged_df=merged_df)
 

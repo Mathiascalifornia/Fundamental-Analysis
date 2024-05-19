@@ -49,6 +49,7 @@ class App:
         self.worked_share_holders = False
         self.sentiment_score = False
         self.main_institutions_bool = False
+        self.worked_simulation = False
 
         self.data_viz = DataViz(
             **self._get_attributs()
@@ -222,6 +223,7 @@ class App:
                     print("Error with multiple indicators : ", e)
 
     def plot_stock_prices_figures(self):
+
         self.data_viz.plot_maximum_draw_down(df=self.df_price)
         self.data_viz.plot_against_benmark()
         self.data_viz.plot_against_benmark(five_years=True)
@@ -294,12 +296,16 @@ class App:
                     scores_dict=scores_dict_five_years, five_years_back=True
                 )
 
-            simulation_result_df = DividendGainCalculator(
-                df_price=self.df_price, df_div=self.df_dividend
-            ).main()
+            try:
+                simulation_result_df = DividendGainCalculator(
+                    df_price=self.df_price, df_div=self.df_dividend, ticker=self.ticker
+                ).main()
 
-            if len(simulation_result_df) >= 1:
-                self.data_viz.plot_simulation_df(simulation_result_df)
+                if len(simulation_result_df) >= 1:
+                    self.data_viz.plot_simulation_df(simulation_result_df)
+                    self.worked_simulation = True
+            except ValueError:
+                pass
 
     def save_presentation(self):
 
@@ -489,3 +495,4 @@ class App:
         print("Worked stock data : ", self.worked_stock_price)
         print("Worked dividends data : ", self.worked_dividends)
         print("Worked main institution : ", self.main_institutions_bool)
+        print("Worked simulation : ", self.worked_simulation)

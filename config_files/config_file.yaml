@@ -1,4 +1,91 @@
-O:
-  company_name: Realty Income
-  path_to_save: "C:\\Users\\User\\Desktop\\analysis_company\\real_estate"
+SRE:
+  company_name: Sempra
+  path_to_save: "C:\\Users\\User\\Desktop\\analysis_company\\utilities"
 
+SVT.L:
+  company_name: Severn Trent PLC
+  path_to_save: "C:\\Users\\User\\Desktop\\analysis_company\\utilities"
+
+UU.L:
+  company_name: United Utilities Group PLC
+  path_to_save: "C:\\Users\\User\\Desktop\\analysis_company\\utilities"
+
+AWK:
+  company_name: American Water Works Company, Inc.
+  path_to_save: "C:\\Users\\User\\Desktop\\analysis_company\\utilities"
+
+ATO:
+  company_name: Atmos Energy Corporation
+  path_to_save: "C:\\Users\\User\\Desktop\\analysis_company\\utilities"
+
+0NQP.IL:
+  company_name: Snam S.p.A.
+  path_to_save: "C:\\Users\\User\\Desktop\\analysis_company\\utilities"
+
+AES:
+  company_name: The AES Corporation
+  path_to_save: "C:\\Users\\User\\Desktop\\analysis_company\\utilities"
+
+NI:
+  company_name: NiSource Inc.
+  path_to_save: "C:\\Users\\User\\Desktop\\analysis_company\\utilities"
+
+HGKGY:
+  company_name: Power Assets Holdings Limited
+  path_to_save: "C:\\Users\\User\\Desktop\\analysis_company\\utilities"
+
+WTRG:
+  company_name: Essential Utilities, Inc.
+  path_to_save: "C:\\Users\\User\\Desktop\\analysis_company\\utilities"
+
+CU.TO:
+  company_name: Canadian Utilities Limited
+  path_to_save: "C:\\Users\\User\\Desktop\\analysis_company\\utilities"
+
+SWX:
+  company_name: Southwest Gas Holdings, Inc.
+  path_to_save: "C:\\Users\\User\\Desktop\\analysis_company\\utilities"
+
+UGI:
+  company_name: UGI Corporation
+  path_to_save: "C:\\Users\\User\\Desktop\\analysis_company\\utilities"
+
+CPX.TO:
+  company_name: Capital Power Corporation
+  path_to_save: "C:\\Users\\User\\Desktop\\analysis_company\\utilities"
+
+ACO-Y.TO:
+  company_name: ATCO Ltd.
+  path_to_save: "C:\\Users\\User\\Desktop\\analysis_company\\utilities"
+
+NJR:
+  company_name: New Jersey Resources Corporation
+  path_to_save: "C:\\Users\\User\\Desktop\\analysis_company\\utilities"
+
+BKH:
+  company_name: Black Hills Corporation
+  path_to_save: "C:\\Users\\User\\Desktop\\analysis_company\\utilities"
+
+OTTR:
+  company_name: Otter Tail Corporation
+  path_to_save: "C:\\Users\\User\\Desktop\\analysis_company\\utilities"
+
+ALE:
+  company_name: ALLETE, Inc.
+  path_to_save: "C:\\Users\\User\\Desktop\\analysis_company\\utilities"
+
+SR:
+  company_name: Spire Inc.
+  path_to_save: "C:\\Users\\User\\Desktop\\analysis_company\\utilities"
+
+OGS:
+  company_name: ONE Gas, Inc.
+  path_to_save: "C:\\Users\\User\\Desktop\\analysis_company\\utilities"
+
+CWT:
+  company_name: California Water Service Group
+  path_to_save: "C:\\Users\\User\\Desktop\\analysis_company\\utilities"
+
+AVA:
+  company_name: Avista Corporation
+  path_to_save: "C:\\Users\\User\\Desktop\\analysis_company\\utilities"
