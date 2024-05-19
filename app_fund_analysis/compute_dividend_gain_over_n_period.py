@@ -16,7 +16,7 @@ from api_calls import ApiCaller
 from pickle_loader import PickleLoaderAndSaviour
 import config
 
-# Integrate this functionnality in the pipeline , as an array
+# TODO ; Fixer l'evol dans laquelle ont essai d'adapter les autres currency au dollars
 
 
 class DividendGainCalculator:
@@ -57,8 +57,11 @@ class DividendGainCalculator:
 
         if os.path.exists(DividendGainCalculator.PATH_FOREX_CSV):
             self.forex_df: pd.DataFrame = pd.read_csv(
-                DividendGainCalculator.PATH_FOREX_CSV, index_col="Date"
+                DividendGainCalculator.PATH_FOREX_CSV,
+                index_col="Date",
+                parse_dates=["Date"],
             )
+
         else:
             self.forex_df: pd.DataFrame = (
                 DividendGainCalculator.api_caller.create_forex_exchange_df()
@@ -183,17 +186,27 @@ class DividendGainCalculator:
             )
 
         if currency != "USD":
+
+            # QUICK FIX , to remove
+            raise ValueError()
             merged_df = pd.merge(
                 merged_df, self.forex_df, left_index=True, right_index=True, how="inner"
             )
 
+            merged_df = merged_df[pd.Timestamp("2004-08-18") :]
+            merged_df.to_csv(
+                r"C:\Users\User\Desktop\Finance softwares\fundamental_analysis\Fundamental-Analysis\test\merged_df.csv"
+            )
+
             unique_values_curr = list(merged_df[currency])
+
             if any(not val for val in unique_values_curr) or merged_df.empty:
                 raise ValueError(
                     "Some bad values are present for the forex rates of this currency. Skipping the simulation"
                 )
 
             merged_df["Close"] = merged_df["Close"] * merged_df[currency]
+            merged_df["Dividends"] = merged_df["Dividends"] * merged_df[currency]
 
         return self.get_yearly_gains(merged_df=merged_df)
 
@@ -206,7 +219,7 @@ class DividendGainCalculator:
             Check that we have enought data to make the computation for each time spans
             """
             return (
-                round((merged_df.index[-1] - merged_df.index[0]).days / 365.25)
+                round((merged_df.index[-1] - merged_df.index[0]).days / 252.25)
                 >= minus_n_years
             )
 
