@@ -727,12 +727,15 @@ class DataViz(PresPPT):
 
         df_ = self.df_price.copy()
         sp500 = self.sp500_price.copy()
-        byield = DataReader("DGS10", "fred", "1975-01-01")
-        fed_fund = DataReader("DFF", "fred", "1975-01-01")
-        inflation = DataReader("CORESTICKM159SFRBATL", "fred", "1975-01-01")
-        dji = data.get_data_yahoo("^DJI", start="1975-01-01")[["Adj Close"]]
-        vix = data.get_data_yahoo("^VIX", start="1975-01-01")[["Adj Close"]]
-        nas = data.get_data_yahoo("^IXIC", start="1975-01-01")[["Adj Close"]]
+        limit_date = dt.datetime.now() - dt.timedelta(days=365*10)
+        df_ = df_[limit_date:]
+        sp500 = sp500[df_.index[0]:]
+        byield = DataReader("DGS10", "fred", limit_date)
+        fed_fund = DataReader("DFF", "fred", limit_date)
+        inflation = DataReader("CORESTICKM159SFRBATL", "fred", limit_date)
+        dji = data.get_data_yahoo("^DJI", start=limit_date)[["Adj Close"]]
+        vix = data.get_data_yahoo("^VIX", start=limit_date)[["Adj Close"]]
+        nas = data.get_data_yahoo("^IXIC", start=limit_date)[["Adj Close"]]
 
         corr_vix = df_["Adj Close"].corr(vix["Adj Close"], method="spearman")
         corr_vix_dow = dji["Adj Close"].corr(vix["Adj Close"], method="spearman")
