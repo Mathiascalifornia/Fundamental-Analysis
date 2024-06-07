@@ -824,6 +824,9 @@ class DataViz(PresPPT):
                     "Consumer Price Index",
                 ],
             )
+
+            plt.xticks(fontsize=8)
+
             plt.legend(edgecolor="black")
             plt.savefig(os.path.join(super().data_path, "correlations.png"))
             plt.close("all")
