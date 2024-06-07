@@ -8,11 +8,16 @@ import tqdm
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "app_fund_analysis"))
 
-from app_fund_analysis.app import App
 
+from app_fund_analysis.app import App
 
 ### Made to launch several instance of the app in a row , using the yaml config file ###
 def main(file_path: pathlib.Path):
+
+    import matplotlib
+    matplotlib.use('Agg') # Change the backend, otherwise it uses Tkinter which can cause problems (not in the main threads blablabla)
+
+    
     def __load_yaml_file(file_path: pathlib.Path) -> dict:
         """
         Load the config file

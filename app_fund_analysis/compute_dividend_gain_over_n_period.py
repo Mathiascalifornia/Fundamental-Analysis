@@ -90,7 +90,6 @@ class DividendGainCalculator:
 
     @staticmethod
     def detect_currency(ticker: str, dict_equivalence: dict) -> str:
-
         """
         To adapt the currency to the computations
         """
@@ -127,7 +126,7 @@ class DividendGainCalculator:
                 )
 
                 result: pd.DataFrame = cls(
-                    df_div=df_div, df_price=df_price
+                    df_div=df_div, df_price=df_price, ticker=ticker
                 ).get_results()
 
                 year: int
@@ -293,7 +292,7 @@ class DividendGainCalculator:
         Compute compound interest for a dividend-paying stock investment.
 
         Args:
-            merged_df (pd.DataFrame): DataFrame with stock data including "Adj Close" and "Dividends" columns.
+            merged_df (pd.DataFrame): DataFrame with stock data including "Close" and "Dividends" columns.
             initial_capital (int, optional): Initial investment capital. Defaults to 100.
 
         Returns:
@@ -304,34 +303,28 @@ class DividendGainCalculator:
         merged_df["N shares"] = 0
         merged_df["Dividends Gains"] = 0
 
-        merged_df.iloc[
-            0, merged_df.columns.get_loc("Capital")
-        ] = initial_capital  # Set the initial capital
-        merged_df.iloc[0, merged_df.columns.get_loc("N shares")] = (
-            merged_df.iloc[0]["Capital"] / merged_df.iloc[0]["Close"]
-        )  # Initial number of shares
-
-        merged_df["pct_change_price"] = merged_df["Close"].pct_change()
+        # Set the initial capital and initial number of shares
+        merged_df.at[merged_df.index[0], "Capital"] = initial_capital
+        merged_df.at[merged_df.index[0], "N shares"] = (
+            initial_capital / merged_df.at[merged_df.index[0], "Close"]
+        )
 
         for i in range(1, len(merged_df)):
-
             previous = merged_df.iloc[i - 1]
             current = merged_df.iloc[i]
 
             gain = previous["N shares"] * current["Dividends"]  # Gain in dividends
+            new_n_shares = previous["N shares"] + (
+                gain / current["Close"]
+            )  # Reinvest dividends to buy more shares
             new_capital = (
-                previous["Capital"]
-                + gain
-                + (current["pct_change_price"] * previous["Close"])
-            )
-            new_n_shares = previous["N shares"] + (gain / current["Close"])
+                new_n_shares * current["Close"]
+            )  # Calculate new capital based on the current price of shares
             new_gain_in_dividends = previous["Dividends Gains"] + gain
 
-            merged_df.iloc[i, merged_df.columns.get_loc("Capital")] = new_capital
-            merged_df.iloc[i, merged_df.columns.get_loc("N shares")] = new_n_shares
-            merged_df.iloc[
-                i, merged_df.columns.get_loc("Dividends Gains")
-            ] = new_gain_in_dividends
+            merged_df.at[merged_df.index[i], "Capital"] = new_capital
+            merged_df.at[merged_df.index[i], "N shares"] = new_n_shares
+            merged_df.at[merged_df.index[i], "Dividends Gains"] = new_gain_in_dividends
 
         return merged_df
 

@@ -434,8 +434,6 @@ class DataViz(PresPPT):
         color = ["red", "lightgreen", "gold"]
         explode = [0.12, 0.02, 0.05]
 
-        
-
         if not self.english:
             labels = [
                 f"Initiés : {round(insider , 3)}%",
@@ -727,9 +725,9 @@ class DataViz(PresPPT):
 
         df_ = self.df_price.copy()
         sp500 = self.sp500_price.copy()
-        limit_date = dt.datetime.now() - dt.timedelta(days=365*10)
+        limit_date = dt.datetime.now() - dt.timedelta(days=365 * 10)
         df_ = df_[limit_date:]
-        sp500 = sp500[df_.index[0]:]
+        sp500 = sp500[df_.index[0] :]
         byield = DataReader("DGS10", "fred", limit_date)
         fed_fund = DataReader("DFF", "fred", limit_date)
         inflation = DataReader("CORESTICKM159SFRBATL", "fred", limit_date)

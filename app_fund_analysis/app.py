@@ -8,7 +8,6 @@ import numpy as np
 
 from scraping import ScrapingSelenium
 from data_viz import DataViz
-from tkinter_windows import MainWindows
 from finance_computation import FinanceComputationner
 from api_calls import ApiCaller
 from dividend_score_calculator import DividendScoreCalculator
