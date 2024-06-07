@@ -418,13 +418,13 @@ class DataViz(PresPPT):
         data_ = yf.Ticker(str(self.ticker).upper())
 
         pct = (
-            data_.major_holders.iloc[:-2]["Breakdown"]
-            .apply(lambda x: x.replace("%", ""))
+            data_.major_holders.iloc[:-2]["Value"]
+            # .apply(lambda x: x.replace("%", ""))
             .astype(float)
         )
 
-        insider = pct.iloc[0]
-        institution = pct.iloc[1]
+        insider = pct.iloc[0] * 100
+        institution = pct.iloc[1] * 100
 
         particuliers = 100 - sum((insider, institution))
 
@@ -433,6 +433,8 @@ class DataViz(PresPPT):
 
         color = ["red", "lightgreen", "gold"]
         explode = [0.12, 0.02, 0.05]
+
+        
 
         if not self.english:
             labels = [
